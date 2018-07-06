@@ -28,14 +28,14 @@ router.get("/:vendorId/:loyaltyRewardId?", (req, res) => {
 
   let promise;
   if (req.params.loyaltyRewardId) {
-    promise = getVendorReward({
-      loyalty_reward_uuid: req.params.loyaltyRewardId,
-      vendor_uuid: req.params.vendorId
+    promise = getVendorReward(req.params.vendorId, {
+      uuid: req.params.loyaltyRewardId
     }).then(loyalty_reward => ({ loyalty_reward }));
   } else {
-    promise = getVendorRewards({
-      vendor_uuid: req.params.vendorId
-    }).then(loyalty_rewards => ({ loyalty_rewards }));
+    promise = getVendorRewards(req.params.vendorId, {
+      limit: +req.query.limit || 20,
+      offset: +req.query.offset || 0
+    });
   }
   promise.then(response => res.status(200).send(response)).catch(res.sendError);
 });
@@ -111,7 +111,7 @@ router.delete(
       vendor_uuid: req.params.vendorId,
       loyalty_reward_uuid: req.params.loyaltyRewardId
     })
-      .then(() => res.status(200).end())
+      .then(deleted_rows => res.status(200).send({ deleted_rows }))
       .catch(res.sendError);
   }
 );

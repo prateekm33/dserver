@@ -38,11 +38,16 @@ router.post("/login", (req, res) => {
 
 // router.get("/logout", (req, res) => {});
 
-router.get("/:customerId", auth.canAccessCustomer, (req, res) => {
-  getCustomer(req.params.customerId)
-    .then(customer => res.status(200).send({ customer }))
-    .catch(res.sendError);
-});
+router.get(
+  "/:customerId",
+  auth.validateJWT,
+  auth.canAccessCustomer,
+  (req, res) => {
+    getCustomer(req.params.customerId)
+      .then(customer => res.status(200).send({ customer }))
+      .catch(res.sendError);
+  }
+);
 
 router.post("/", (req, res) => {
   if (!req.body.customer)
@@ -69,33 +74,38 @@ router.post("/", (req, res) => {
     .catch(res.sendError);
 });
 
-router.put("/:customerId", auth.canAccessCustomer, (req, res) => {
-  if (!req.body.updates)
-    return res
-      .status(400)
-      .send(createNewError(Errors.MISSING_PARAMETER("updates")));
-  if (req.body.updates.constructor.prototype !== Object.prototype) {
-    return res
-      .status(400)
-      .send(
-        createNewError(
-          Errors.PARAMETER_IS_NOT_EXPECTED_TYPE(
-            "updates",
-            "Object",
-            req.body.updates
+router.put(
+  "/:customerId",
+  auth.validateJWT,
+  auth.canAccessCustomer,
+  (req, res) => {
+    if (!req.body.updates)
+      return res
+        .status(400)
+        .send(createNewError(Errors.MISSING_PARAMETER("updates")));
+    if (req.body.updates.constructor.prototype !== Object.prototype) {
+      return res
+        .status(400)
+        .send(
+          createNewError(
+            Errors.PARAMETER_IS_NOT_EXPECTED_TYPE(
+              "updates",
+              "Object",
+              req.body.updates
+            )
           )
-        )
-      );
+        );
+    }
+
+    updateCustomer(req.params.customerId, req.body.updates)
+      .then(customer => res.status(200).send({ customer }))
+      .catch(res.sendError);
   }
+);
 
-  updateCustomer(req.params.customerId, req.body.updates)
-    .then(customer => res.status(200).send({ customer }))
-    .catch(res.sendError);
-});
-
-router.delete("/:customerId", (req, res) => {
+router.delete("/:customerId", auth.validateJWT, (req, res) => {
   deleteCustomer(req.params.customerId)
-    .then(() => res.status(200).end())
+    .then(deleted_rows => res.status(200).send({ deleted_rows }))
     .catch(res.sendError);
 });
 

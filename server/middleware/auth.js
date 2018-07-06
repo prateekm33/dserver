@@ -9,26 +9,28 @@ const expressJWT = require("express-jwt");
 const { getCustomer, getVendorEmployee } = require("../db/controllers");
 const { USER_ROLES } = require("../db/schemas/constants");
 const Errors = require("../constants/Errors");
+const { getSuperAdmin } = require("../routes/controllers/gotham.router");
 
 exports.isAdmin = (req, res, next) => {
   if (
     req.user.role !== USER_ROLES.SUPERADMIN &&
     req.user.role !== USER_ROLES.VENDOR_ADMIN
-  )
+  ) {
     return sendUnauthorizedMessage(res);
-  else if (
+  } else if (
     req.user.role === USER_ROLES.VENDOR_ADMIN &&
     req.params.vendorId !== req.user.vendor_uuid
-  )
+  ) {
     return sendUnauthorizedMessage(res);
-  else next();
+  } else next();
 };
 
 exports.isVendorEmployee = (req, res, next) => {
-  if (isVendorEmployee(req)) return sendUnauthorizedMessage(res);
-  next();
+  if (isVendorEmployee(req)) return next();
+  else return sendUnauthorizedMessage(res);
 };
 
+// only SUPERADMIN and employees of vendor can access; and CUSTOMER can access self
 exports.canAccessCustomerRewards = (req, res, next) => {
   if (req.user.role === USER_ROLES.SUPERADMIN) next();
   else if (
@@ -97,27 +99,45 @@ exports.validateJWT = compose([
         return req.query.token;
       }
       throw "invalid";
-    }
-    // TODO...bring this back if we need to check for expiration dates on JWT tokens
-    // isRevoked(req, payload, done) {
-    //   let promise;
-    //   if (payload.user_type === "customer") promise = getCustomer(payload.uuid);
-    //   else if (payload.user_type === "vendor")
-    //     promise = getVendorEmployee(payload.uuid);
-    //   else return done(true);
+    },
+    isRevoked(req, payload, done) {
+      let promise;
+      if (payload.role === USER_ROLES.CUSTOMER)
+        promise = getCustomer(payload.uuid);
+      else if (
+        payload.role === USER_ROLES.VENDOR_ADMIN ||
+        payload.role === USER_ROLES.VENDOR_EMPLOYEE
+      ) {
+        promise = getVendorEmployee({
+          uuid: payload.uuid,
+          vendor_uuid: payload.vendor_uuid
+        });
+      } else if (payload.role === USER_ROLES.SUPERADMIN) {
+        promise = getSuperAdmin({ where: { username: payload.username } });
+      } else return done(true);
 
-    //   promise
-    //     .then(user => {
-    //       if (user.email === payload.email && user.uuid === payload.uuid) {
-    //         return done(null, false);
-    //       } else {
-    //         done(true);
-    //       }
-    //     })
-    //     .catch(err => {
-    //       done(err);
-    //     });
-    // }
+      promise
+        .then(user => {
+          if (
+            payload.role === USER_ROLES.SUPERADMIN &&
+            payload.username === user.username &&
+            payload.uuid === user.uuid
+          ) {
+            return done(null, false);
+          } else if (
+            payload.role !== USER_ROLES.SUPERADMIN &&
+            user.email === payload.email &&
+            user.uuid === payload.uuid
+          ) {
+            return done(null, false);
+          } else {
+            done(true);
+          }
+        })
+        .catch(err => {
+          done(err);
+        });
+    }
   }),
   (err, req, res, next) => {
     if (err) {

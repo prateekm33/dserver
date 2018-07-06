@@ -1,6 +1,9 @@
 const Sequelize = require("sequelize");
 const { USER_ROLES } = require("../constants");
 const phone = require("phone");
+const { createNewError } = require("../../../utils");
+const Errors = require("../../../constants/Errors");
+
 module.exports = (sequelize, Vendor, LoyaltyReward, Deal) => {
   const Customer = sequelize.define(
     "customer",
@@ -8,14 +11,9 @@ module.exports = (sequelize, Vendor, LoyaltyReward, Deal) => {
       uuid: {
         type: Sequelize.DataTypes.UUID,
         primaryKey: true,
-        defaultValue: Sequelize.DataTypes.UUIDV1,
-        validate: {
-          immutable() {
-            return false;
-          }
-        }
+        defaultValue: Sequelize.DataTypes.UUIDV1
       },
-      isSearchable: { type: Sequelize.BOOLEAN, defaultValue: false },
+      is_searchable: { type: Sequelize.BOOLEAN, defaultValue: false },
       email: {
         type: Sequelize.STRING,
         unique: true,
@@ -25,13 +23,9 @@ module.exports = (sequelize, Vendor, LoyaltyReward, Deal) => {
       },
       password: { type: Sequelize.STRING },
       role: {
-        type: Sequelize.STRING,
-        defaultValue: USER_ROLES.CUSTOMER,
-        validate: {
-          immutable(value) {
-            return false;
-          }
-        }
+        type: Sequelize.ENUM,
+        values: [USER_ROLES.CUSTOMER],
+        defaultValue: USER_ROLES.CUSTOMER
       },
       device_token: { type: Sequelize.STRING, defaultValue: "" },
       device_uuid: { type: Sequelize.STRING, defaultValue: "" },
@@ -40,7 +34,8 @@ module.exports = (sequelize, Vendor, LoyaltyReward, Deal) => {
         unique: true,
         validate: {
           isPhone(value) {
-            return !!phone(value, "USA").length;
+            if (!phone(value, "USA").length)
+              throw createNewError(Errors.INVALID_PHONE);
           }
         }
       }
@@ -59,7 +54,7 @@ module.exports = (sequelize, Vendor, LoyaltyReward, Deal) => {
   const CustomerDeal = sequelize.define(
     "customer_deal",
     {
-      is_saved: { type: Sequelize.BOOLEAN, defaultValue: false },
+      is_saved: { type: Sequelize.BOOLEAN, defaultValue: true },
       is_used: { type: Sequelize.BOOLEAN, defaultValue: false },
       is_archived: { type: Sequelize.BOOLEAN, defaultValue: false },
       is_deleted: { type: Sequelize.BOOLEAN, defaultValue: false }
@@ -69,14 +64,24 @@ module.exports = (sequelize, Vendor, LoyaltyReward, Deal) => {
   CustomerReward.belongsTo(Vendor);
   CustomerDeal.belongsTo(Vendor);
 
-  Customer.LoyaltyReward = Customer.belongsToMany(LoyaltyReward, {
+  // TODO...reevaluate if this is how we want to save these
+  Customer.LoyaltyRewardRelation = Customer.belongsToMany(LoyaltyReward, {
     through: CustomerReward
   });
-  LoyaltyReward.Customer = LoyaltyReward.belongsToMany(Customer, {
+  LoyaltyReward.CustomerRelation = LoyaltyReward.belongsToMany(Customer, {
     through: CustomerReward
   });
-  Customer.Deal = Customer.belongsToMany(Deal, { through: CustomerDeal });
-  Deal.Customer = Deal.belongsToMany(Customer, { through: CustomerDeal });
+  Customer.LoyaltyReward = CustomerReward;
+  LoyaltyReward.Customer = CustomerReward;
+
+  Customer.Deal = CustomerDeal;
+  Customer.DealRelation = Customer.belongsToMany(Deal, {
+    through: CustomerDeal
+  });
+  Deal.Customer = CustomerDeal;
+  Deal.CustomerRelation = Deal.belongsToMany(Customer, {
+    through: CustomerDeal
+  });
 
   return Customer;
 };

@@ -1,11 +1,11 @@
-// route: /api/vendors/customers/deal
+// route: /api/vendors/customers/reward
 const router = require("express").Router();
 const {
-  getVendorCustomerDeal,
-  getVendorCustomerDeals,
-  createVendorCustomerDeal,
-  updateVendorCustomerDeal,
-  deleteVendorCustomerDeal
+  getVendorCustomerLoyaltyRewardCard,
+  getVendorCustomerLoyaltyRewardCards,
+  createVendorCustomerLoyaltyRewardCard,
+  updateVendorCustomerLoyaltyRewardCard,
+  deleteVendorCustomerLoyaltyRewardCard
 } = require("../../../db/controllers");
 const { createNewError, sendUnauthorizedMessage } = require("../../../utils");
 const Errors = require("../../../constants/Errors");
@@ -13,36 +13,29 @@ const { USER_ROLES } = require("../../../db/schemas/constants");
 const auth = require("../../../middleware/auth");
 
 router.get(
-  "/:customerId/:vendorId/:dealId",
+  "/:customerId/:vendorId/:loyaltyRewardId",
   auth.canAccessCustomerRewards,
   (req, res) => {
-    getVendorCustomerDeal(req.params.vendorId, {
+    getVendorCustomerLoyaltyRewardCard(req.params.vendorId, {
       customer_uuid: req.params.customerId,
-      deal_uuid: req.params.dealId
+      loyalty_reward_uuid: req.params.loyaltyRewardId
     })
-      .then(customer_deal => res.status(200).send({ customer_deal }))
+      .then(loyalty_reward => res.status(200).send({ loyalty_reward }))
       .catch(res.sendError);
   }
 );
 
 router.get("/:customerId", auth.canAccessCustomerRewards, (req, res) => {
   const where = { customer_uuid: req.params.customerId };
-  if (req.query.is_saved) {
-    if (req.query.is_saved.toLowerCase() === "true") {
-      where.is_saved = true;
-    } else if (req.query.is_saved.toLowerCase() === "false") {
-      where.is_saved = false;
-    }
-  }
+
   const limit = +req.query.limit || 20;
   const offset = +req.query.offset || 0;
-  getVendorCustomerDeals(undefined, { where, limit, offset })
+  getVendorCustomerLoyaltyRewardCards(undefined, { where, limit, offset })
     .then(response => res.status(200).send(response))
     .catch(res.sendError);
 });
 
-// used when needed to update whether customer has saved this deal
-router.post("/:customerId/:vendorId/:dealId", (req, res) => {
+router.post("/:customerId/:vendorId/:loyaltyRewardId", (req, res) => {
   if (
     req.user.role !== USER_ROLES.SUPERADMIN &&
     req.user.role !== USER_ROLES.CUSTOMER
@@ -54,19 +47,17 @@ router.post("/:customerId/:vendorId/:dealId", (req, res) => {
   )
     return sendUnauthorizedMessage(res);
 
-  const new_customer_deal = {
+  const new_customer_card = {
     customer_uuid: req.params.customerId,
-    deal_uuid: req.params.dealId
+    loyalty_reward_uuid: req.params.loyaltyRewardId
   };
-  createVendorCustomerDeal(req.params.vendorId, new_customer_deal)
-    .then(customer_deal => res.status(200).send({ customer_deal }))
+  createVendorCustomerLoyaltyRewardCard(req.params.vendorId, new_customer_card)
+    .then(loyalty_reward => res.status(200).send({ loyalty_reward }))
     .catch(res.sendError);
 });
 
-// used when needed to update whether customer has used this deal or not
-// or when customer archives the deal
 router.put(
-  "/:customerId/:vendorId/:dealId",
+  "/:customerId/:vendorId/:loyaltyRewardId",
   auth.canModifyCustomerRewards,
   (req, res) => {
     if (!req.body.updates)
@@ -89,30 +80,30 @@ router.put(
 
     const where = {
       customer_uuid: req.params.customerId,
-      deal_uuid: req.params.dealId
+      loyalty_reward_uuid: req.params.loyaltyRewardId
     };
 
-    updateVendorCustomerDeal(req.params.vendorId, where, req.body.updates)
-      .then(customer_deal => res.status(200).send({ customer_deal }))
+    updateVendorCustomerLoyaltyRewardCard(
+      req.params.vendorId,
+      where,
+      req.body.updates
+    )
+      .then(loyalty_reward => res.status(200).send({ loyalty_reward }))
       .catch(res.sendError);
   }
 );
 
-router.delete("/:customerId/:vendorId/:dealId", (req, res) => {
-  if (
-    req.user.uuid !== req.params.customerId &&
-    req.user.role !== USER_ROLES.SUPERADMIN
-  ) {
-    return sendUnauthorizedMessage(res);
+router.delete(
+  "/:customerId/:vendorId/:loyaltyRewardId",
+  auth.canAccessCustomerRewards,
+  (req, res) => {
+    deleteVendorCustomerLoyaltyRewardCard(req.params.vendorId, {
+      loyalty_reward_uuid: req.params.loyaltyRewardId,
+      customer_uuid: req.params.customerId
+    })
+      .then(deleted_rows => res.status(200).send({ deleted_rows }))
+      .catch(res.sendError);
   }
-
-  deleteVendorCustomerDeal(req.params.vendorId, {
-    deal_uuid: req.params.dealId,
-    customer_uuid: req.params.customerId,
-    is_used: false
-  })
-    .then(() => res.status(200).end())
-    .catch(res.sendError);
-});
+);
 
 module.exports = router;

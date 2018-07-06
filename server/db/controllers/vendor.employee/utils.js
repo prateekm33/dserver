@@ -1,6 +1,7 @@
 const { VendorEmployee } = require("../../");
 const bcrypt = require("bcrypt");
 const Errors = require("../../../constants/Errors");
+const { createNewError } = require("../../../utils");
 
 exports.removeProtected = user => {
   const protectedUser = { ...user.get() };
@@ -9,7 +10,21 @@ exports.removeProtected = user => {
 };
 
 exports.validateVendorEmployee = user => {
-  return user.validate().then(validated => validated.save());
+  return user.validate().then(validated =>
+    validated.save({
+      fields: [
+        "first_name",
+        "last_name",
+        "email",
+        "password",
+        "role",
+        "device_token",
+        "device_uuid",
+        "phone",
+        "vendor_uuid"
+      ]
+    })
+  );
 };
 
 exports.findOrCreate = employee => {
@@ -36,12 +51,31 @@ exports.findOrCreate = employee => {
     .then(exports.validateVendorEmployee);
 };
 
+exports.validatePassword = (employee, submittedCredentials) => {
+  return bcrypt
+    .compare(submittedCredentials.password, employee.password)
+    .then(match => {
+      if (match) return employee;
+      else
+        throw createNewError(Errors.INCORRECT_PASSWORD, {
+          stackTrace: new Error(Errors.INCORRECT_PASSWORD)
+        });
+    });
+};
+
 function isValidPassword(password) {
   const hasValidLength = password.length >= 6;
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);
   const hasNumbers = /\d/.test(password);
   const hasNonalphas = /\W/.test(password);
+  console.log(
+    hasValidLength,
+    hasUpperCase,
+    hasLowerCase,
+    hasNonalphas,
+    hasNumbers
+  );
   return (
     hasValidLength && hasUpperCase && hasLowerCase && hasNumbers && hasNonalphas
   );

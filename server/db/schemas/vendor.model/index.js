@@ -1,6 +1,8 @@
 const Sequelize = require("sequelize");
 const { VENDOR_TYPES } = require("./constants");
 const phone = require("phone");
+const { createNewError } = require("../../../utils");
+const Errors = require("../../../constants/Errors");
 
 module.exports = sequelize => {
   const Vendor = sequelize.define(
@@ -9,12 +11,7 @@ module.exports = sequelize => {
       uuid: {
         type: Sequelize.DataTypes.UUID,
         primaryKey: true,
-        defaultValue: Sequelize.DataTypes.UUIDV1,
-        validate: {
-          immutable() {
-            return false;
-          }
-        }
+        defaultValue: Sequelize.DataTypes.UUIDV1
       },
       name: {
         type: Sequelize.STRING,
@@ -32,15 +29,20 @@ module.exports = sequelize => {
         unique: true,
         validate: {
           isPhone(value) {
-            return !!phone(value, "USA").length;
+            if (!phone(value, "USA").length)
+              throw createNewError(Errors.INVALID_PHONE);
+            return true;
           }
         }
       },
       type: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM,
+        values: [VENDOR_TYPES.RESTAURANT],
         validate: {
-          immutable() {
-            return false;
+          isValidVendorType(value) {
+            if (value !== VENDOR_TYPES.RESTAURANT)
+              throw createNewError(Errors.INVALID_VENDOR_TYPE);
+            return true;
           }
         }
       },
@@ -55,7 +57,8 @@ module.exports = sequelize => {
         type: Sequelize.STRING,
         validate: {
           isPhone(value) {
-            return !!phone(value, "USA").length;
+            if (!phone(value, "USA").length)
+              throw createNewError(Errors.INVALID_PHONE);
           }
         }
       },

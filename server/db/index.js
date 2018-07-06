@@ -20,6 +20,7 @@ const sequelize = new Sequelize(DBNAME, DBUSER, DBPW, {
     idle: 10000
   }
 });
+
 const schemas = initSchemas(sequelize);
 sequelize
   .authenticate()

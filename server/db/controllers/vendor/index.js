@@ -1,4 +1,4 @@
-const { Vendor } = require("../..");
+const { Vendor } = require("../../");
 const { findOrCreate, validateVendor } = require("./utils");
 const Errors = require("../../../constants/Errors");
 const { createNewError } = require("../../../utils");
@@ -12,19 +12,10 @@ exports.getVendor = id =>
   });
 
 exports.createVendor = vendor => {
-  return findOrCreate(vendor).catch(err => {
-    if (err.IS_HASH_ERROR) throw err;
-    else if (err.name === "SequelizeValidationError") {
-      console.log("---------TODO...HANDLE ERROR BETTER: ");
-      throw createNewError(Errors.INTERNAL_SERVER_ERROR, null, err);
-      // if (err.errors[0].path === "email") {
-      //   throw createNewError(Errors.INVALID_EMAIL, {
-      //     stackTrace: new Error(Errors.INVALID_EMAIL)
-      //   });
-      // }
-    }
-  });
+  delete vendor.uuid;
+  return findOrCreate(vendor);
 };
+
 exports.updateVendor = id => {
   return Vendor.findById(id)
     .then(vendor => {
@@ -32,6 +23,7 @@ exports.updateVendor = id => {
       console.log(
         "------TODO...need to check if this actually works...., might have to call customer.get first"
       );
+      delete updates.uuid;
       for (let attr in updates) {
         vendor[attr] = updates[attr];
       }
@@ -39,4 +31,7 @@ exports.updateVendor = id => {
     })
     .then(validateVendor);
 };
-exports.deleteVendor = uuid => Vendor.destroy({ where: { uuid } });
+exports.deleteVendor = uuid =>
+  Vendor.destroy({ where: { uuid } }).then(rows => {
+    if (!rows) throw createNewError(Errors.NOT_DELETED);
+  });

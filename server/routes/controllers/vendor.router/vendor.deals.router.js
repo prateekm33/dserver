@@ -29,10 +29,13 @@ router.get("/:vendorId/:dealId?", (req, res) => {
   let promise;
   if (req.params.dealId) {
     promise = getVendorDeal(req.params.vendorId, {
-      deal_uuid: req.params.dealId
+      uuid: req.params.dealId
     }).then(deal => ({ deal }));
   } else {
-    promise = getVendorDeals(req.params.vendorId).then(deals => ({ deals }));
+    promise = getVendorDeals(req.params.vendorId, {
+      limit: +req.query.limit || 20,
+      offset: +req.query.offset || 0
+    });
   }
   promise.then(response => res.status(200).send(response)).catch(res.sendError);
 });
@@ -84,7 +87,7 @@ router.put(
     updateVendorDeal(
       req.params.vendorId,
       {
-        deal_uuid: req.params.dealId
+        uuid: req.params.dealId
       },
       req.body.updates
     )
@@ -101,7 +104,7 @@ router.delete(
     deleteVendorDeal(req.params.vendorId, {
       deal_uuid: req.params.dealId
     })
-      .then(() => res.status(200).end())
+      .then(deleted_rows => res.status(200).send({ deleted_rows }))
       .catch(res.sendError);
   }
 );

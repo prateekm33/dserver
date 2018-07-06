@@ -3,29 +3,31 @@ const Errors = require("../../../constants/Errors");
 const { createNewError } = require("../../../utils");
 
 exports.validateVendor = vendor => {
-  return vendor.validate().then(validated => validated.save());
+  return vendor.validate().then(validated =>
+    validated.save({
+      fields: [
+        "name",
+        "business_email",
+        "business_phone",
+        "type",
+        "primary_contact_name",
+        "primary_contact_email",
+        "primary_contact_phone",
+        "address"
+      ]
+    })
+  );
 };
 
 exports.findOrCreate = vendor => {
-  return Vendor.findOrCreate({
+  return Vendor.findOne({
     where: { name: vendor.name, address: vendor.address }
-  }).spread((created_vendor, created) => {
-    if (!created) throw createNewError(Errors.VENDOR_EXISTS);
-    return created_vendor;
-  });
+  })
+    .then(found => {
+      if (!!found) throw createNewError(Errors.VENDOR_EXISTS);
+    })
+    .then(() => {
+      return Vendor.build(vendor);
+    })
+    .then(exports.validateVendor);
 };
-
-//   return Vendor.findOne({
-//     where: { name: vendor.name, address: vendor.address }
-//   })
-//     .then(found => {
-//       if (!!found) {
-//         throw createNewError(Errors.VENDOR_EXISTS, {
-//           userExists: true,
-//           stackTrace: new Error(Errors.VENDOR_EXISTS)
-//         });
-//       }
-//     })
-//     .then(() => Vendor.build(vendor))
-//     .then(exports.validateVendor);
-// };

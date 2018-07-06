@@ -25,10 +25,10 @@ exports.HTTP_LOGGER = (req, res, next) => {
 
 exports.error = (error, message, stackTrace) => {
   exports.sectionStart();
-  console.log(`[ERROR] : `);
-  if (message) console.log(message);
-  if (error) console.log(error);
-  if (stackTrace) console.log(stackTrace);
+  console.error(`[ERROR] : `);
+  if (message) console.error(message);
+  if (error) console.error(error);
+  if (stackTrace) console.error(stackTrace);
   exports.sectionEnd();
 };
 

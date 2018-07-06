@@ -5,37 +5,11 @@ const {
   getVendorEmployee,
   createVendorEmployee,
   updateVendorEmployee,
-  deleteVendorEmployee,
-  loginVendorEmployee
+  deleteVendorEmployee
 } = require("../../../db/controllers");
 const { createNewError, saveVendorEmployeeSession } = require("../../../utils");
 const Errors = require("../../../constants/Errors");
 const { USER_ROLES } = require("../../../db/schemas/constants");
-
-router.post("/login", (req, res) => {
-  if (!req.body.employee)
-    return res
-      .status(400)
-      .send(createNewError(Errors.MISSING_PARAMETER("employee")));
-  if (req.body.employee.constructor.prototype !== Object.prototype) {
-    return res
-      .status(400)
-      .send(
-        createNewError(
-          Errors.PARAMETER_IS_NOT_EXPECTED_TYPE(
-            "employee",
-            "Object",
-            req.body.employee
-          )
-        )
-      );
-  }
-
-  loginVendorEmployee(req.body.employee)
-    .then(saveVendorEmployeeSession)
-    .then(employee => res.status(200).send({ employee }))
-    .catch(res.sendError);
-});
 
 router.get("/:vendorId/:userId", auth.canAccessVendorEmployee, (req, res) => {
   const vendor_uuid = req.user.vendor_uuid;
@@ -48,7 +22,7 @@ router.get("/:vendorId/:userId", auth.canAccessVendorEmployee, (req, res) => {
     .catch(res.sendError);
 });
 
-router.post("/:vendorId", auth.canAccessVendorEmployee, (req, res) => {
+router.post("/:vendorId", auth.isAdmin, (req, res) => {
   if (!req.body.employee)
     return res
       .status(400)
@@ -74,7 +48,7 @@ router.post("/:vendorId", auth.canAccessVendorEmployee, (req, res) => {
     )
       return res
         .status(400)
-        .send(createNewError(Errors.CONTACT_SYSTEM_ADMINISTRATOR_UNAUTHORIZED));
+        .send(createNewError(Errors.NOT_AUTHORIZED_FOR_VENDOR));
   }
 
   req.body.employee.vendor_uuid = req.params.vendorId;
@@ -109,7 +83,7 @@ router.put("/:vendorId/:userId", auth.canAccessVendorEmployee, (req, res) => {
     )
       return res
         .status(400)
-        .send(createNewError(Errors.CONTACT_SYSTEM_ADMINISTRATOR_UNAUTHORIZED));
+        .send(createNewError(Errors.NOT_AUTHORIZED_FOR_VENDOR));
   }
 
   updateVendorEmployee(req.params.userId, req.body.updates)
@@ -122,7 +96,7 @@ router.delete(
   auth.canAccessVendorEmployee,
   (req, res) => {
     deleteVendorEmployee(req.params.userId)
-      .then(() => res.status(200).end())
+      .then(deleted_rows => res.status(200).send({ deleted_rows }))
       .catch(res.sendError);
   }
 );

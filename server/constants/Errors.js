@@ -2,65 +2,168 @@
 
 // UPDATE API CONSTANTS FILE IN CLIENT WHENEVER UPDATES TO THIS ARE MADE
 
-module.exports = {
-  RESOURCE_NOT_FOUND: { message: "404. Not found.", code: -1 },
-  UNAUTHORIZED: { message: "UNAUTHORIZED", code: 0 },
-  FORBIDDEN: { message: "Forbidden.", code: 1 },
-  INTERNAL_SERVER_ERROR: { message: "Internal server error.", code: 2 },
-  USER_NOT_FOUND: { message: "User not found.", code: 3 },
-  CUSTOMER_NOT_FOUND: { message: "User not found.", code: 4 },
-  INCORRECT_PASSWORD: { message: "Incorrect password.", code: 5 },
-  ACCOUNT_EXISTS: {
-    message: "An account with that email already exists.",
-    code: 6
-  },
-  VENDOR_EXISTS: { message: "Vendor already exists.", code: 7 },
-  VENDOR_NOT_FOUND: { message: "Vendor does not exist.", code: 8 },
-  INVALID_EMAIL: { message: "Invalid email.", code: 9 },
-  PASSWORD_INVALID_COMPLEXITY: {
-    message: `Passwords must be at least six characters long and must contain characters from three of the following: uppercase characters, lowercase characters, alphanumeric characters, and special characters (e.g.,!, #, $).`,
-    code: 10
-  },
-  MODEL_NOT_FOUND: { message: "Model not found.", code: 11 },
-  NOT_DELETED: { message: "Could not delete resource.", code: 12 },
-  MISSING_QUERY: parameter => ({
-    message: `Missing required parameter [ ${query} ] in request query string.`,
-    code: 13
-  }),
-  MISSING_PARAMETER: parameter => ({
-    message: `Missing required parameter [ ${parameter} ] in request body.`,
-    code: 14
-  }),
-  PARAMETER_IS_NOT_EXPECTED_TYPE: (parameterName, expected, parameter) => ({
-    message: `Expected paramter ${parameterName} to be of type ${expected}. Got type ${
-      parameter.constructor.name
-    } instead.`,
-    code: 15
-  }),
-  CONSULT_ACCOUNT_ADMINISTRATOR: {
-    message: "Please consult your administrator to complete this action.",
-    code: 16
-  },
-  REWARD_CARD_NOT_FOUND: {
-    message: "Could not find a loyalty rewards account for this customer.",
-    code: 17
-  },
-  CUSTOMER_DEAL_NOT_FOUND: {
-    message: "Could not find the coupon for this customer.",
-    code: 18
-  },
-  CANNOT_CREATE_EMPLOYEE_FOR_DIFFERENT_VENDOR_UNAUTHORIZED: {
-    message:
-      "Cannot create an employee account for an organization that you are not part of. Action is unauthorized.",
-    code: 19
-  },
-  CONTACT_SYSTEM_ADMINISTRATOR_UNAUTHORIZED: {
-    message:
-      "Unable to perform operation. Please contact your system administrator for further advice. Action is unauthorized.",
-    code: 20
-  },
-  DEAL_ALREADY_SAVED: {
-    message: "Coupon has already been saved.",
-    code: 21
-  }
-};
+const _ERRORS = [
+  [
+    "RESOURCE_NOT_FOUND",
+    code => ({
+      message: "404. Not found.",
+      code
+    })
+  ],
+  [
+    "MULTIPLE_ERRORS",
+    code => errors => ({
+      errors,
+      code
+    })
+  ],
+  [
+    "UNAUTHORIZED",
+    code => ({
+      message: "UNAUTHORIZED",
+      code
+    })
+  ],
+  [
+    "FORBIDDEN",
+    code => ({
+      message: "Forbidden.",
+      code
+    })
+  ],
+  [
+    "INTERNAL_SERVER_ERROR",
+    code => ({
+      message: "Internal server error.",
+      code
+    })
+  ],
+  [
+    "FOREIGN_KEY_DNE",
+    code => key => ({
+      message: `Given value for [ ${key} ] does not exist.`,
+      code
+    })
+  ],
+  ["USER_NOT_FOUND", code => ({ message: "User not found.", code })],
+  ["CUSTOMER_NOT_FOUND", code => ({ message: "Customer not found.", code })],
+  ["VENDOR_NOT_FOUND", code => ({ message: "Vendor does not exist.", code })],
+  ["MODEL_NOT_FOUND", code => ({ message: "Model not found.", code })],
+  [
+    "VENDOR_DEAL_NOT_FOUND",
+    code => ({ message: "Could not find this coupon.", code })
+  ],
+  [
+    "VENDOR_REWARD_NOT_FOUND",
+    code => ({ message: "Could not find this rewards card.", code })
+  ],
+  [
+    "CUSTOMER_REWARD_CARD_NOT_FOUND",
+    code => ({
+      message: "Could not find a loyalty rewards account for this customer.",
+      code
+    })
+  ],
+  [
+    "CUSTOMER_DEAL_NOT_FOUND",
+    code => ({
+      message: "Could not find the coupon for this customer.",
+      code
+    })
+  ],
+  [
+    "ACCOUNT_NOT_FOUND",
+    code => ({
+      message: "Account with that username/email not found.",
+      code
+    })
+  ],
+  [
+    "ACCOUNT_EXISTS",
+    code => ({
+      message: "An account with that email already exists.",
+      code
+    })
+  ],
+  ["VENDOR_EXISTS", code => ({ message: "Vendor already exists.", code })],
+  ["INVALID_EMAIL", code => ({ message: "Invalid email.", code })],
+  ["INCORRECT_PASSWORD", code => ({ message: "Incorrect password.", code })],
+  [
+    "PASSWORD_INVALID_COMPLEXITY",
+    code => ({
+      message: `Passwords must be at least six characters long and must contain characters from the following: uppercase characters, lowercase characters, alphanumeric characters, and special characters (e.g.,!, #, $).`,
+      code
+    })
+  ],
+  [
+    "INVALID_EMPLOYEE_ACCOUNT_TYPE",
+    code => ({
+      message: "Account type is either not allowed or invaild.",
+      code
+    })
+  ],
+  [
+    "INVALID_VENDOR_TYPE",
+    code => ({
+      message: "Vendor type provided is either not allowed or invalid.",
+      code
+    })
+  ],
+  [
+    "INVALID_PHONE",
+    code => ({
+      message: "Phone number provided is not of a valid format.",
+      code
+    })
+  ],
+  ["NOT_DELETED", code => ({ message: "Could not delete resource.", code })],
+  [
+    "CONSULT_ACCOUNT_ADMINISTRATOR",
+    code => ({
+      message: "Please consult your administrator to complete this action.",
+      code
+    })
+  ],
+  [
+    "NOT_AUTHORIZED_FOR_VENDOR",
+    code => ({
+      message:
+        "You are not authorized to perform operations for this organization. Please contact support at Dineable for more details.",
+      code
+    })
+  ],
+  [
+    "DEAL_ALREADY_SAVED",
+    code => ({
+      message: "Coupon has already been saved.",
+      code
+    })
+  ],
+  [
+    "MISSING_QUERY",
+    code => parameter => ({
+      message: `Missing required parameter [ ${query} ] in request query string.`,
+      code
+    })
+  ],
+  [
+    "MISSING_PARAMETER",
+    code => parameter => ({
+      message: `Missing required parameter [ ${parameter} ] in request body.`,
+      code
+    })
+  ],
+  [
+    "PARAMETER_IS_NOT_EXPECTED_TYPE",
+    code => (parameterName, expected, parameter) => ({
+      message: `Expected paramter ${parameterName} to be of type ${expected}. Got type ${
+        parameter.constructor.name
+      } instead.`,
+      code
+    })
+  ]
+];
+
+const Errors = {};
+_ERRORS.forEach((err, idx) => (Errors[err[0]] = err[1](idx)));
+module.exports = Errors;

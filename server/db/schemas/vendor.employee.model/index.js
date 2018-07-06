@@ -1,6 +1,8 @@
 const Sequelize = require("sequelize");
 const { USER_ROLES } = require("../constants");
 const phone = require("phone");
+const { createNewError } = require("../../../utils");
+const Errors = require("../../../constants/Errors");
 
 module.exports = (sequelize, Vendor) => {
   const VendorEmployee = sequelize.define(
@@ -9,16 +11,10 @@ module.exports = (sequelize, Vendor) => {
       uuid: {
         type: Sequelize.DataTypes.UUID,
         primaryKey: true,
-        defaultValue: Sequelize.DataTypes.UUIDV1,
-        validate: {
-          immutable() {
-            return false;
-          }
-        }
+        defaultValue: Sequelize.DataTypes.UUIDV1
       },
       first_name: { type: Sequelize.STRING, defaultValue: "" },
       last_name: { type: Sequelize.STRING, defaultValue: "" },
-      username: { type: Sequelize.STRING, defaultValue: "" },
       email: {
         type: Sequelize.STRING,
         unique: true,
@@ -31,8 +27,12 @@ module.exports = (sequelize, Vendor) => {
         type: Sequelize.STRING,
         defaultValue: USER_ROLES.VENDOR_EMPLOYEE,
         validate: {
-          immutable() {
-            return false;
+          isValidEmployeeType(value) {
+            if (
+              value !== USER_ROLES.VENDOR_ADMIN &&
+              value !== USER_ROLES.VENDOR_EMPLOYEE
+            )
+              throw createNewError(Errors.INVALID_EMPLOYEE_ACCOUNT_TYPE);
           }
         }
       },
@@ -43,7 +43,8 @@ module.exports = (sequelize, Vendor) => {
         unique: true,
         validate: {
           isPhone(value) {
-            return !!phone(value, "USA").length;
+            if (!phone(value, "USA").length)
+              throw createNewError(Errors.INVALID_PHONE);
           }
         }
       }

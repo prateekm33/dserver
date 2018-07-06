@@ -1,10 +1,10 @@
 const Sequelize = require("sequelize");
 const sequelize = require("..").db;
 
-exports.getDeals = ({ where, limit, offset }) => {
+exports.getLoyaltyRewards = ({ where, limit, offset }) => {
   const bind = { limit, offset };
   let query =
-    "select json_build_object('deal', d)\"data\" from (select d.*, json_build_object('data', v)vendor from deals d inner join vendors v on v.uuid=d.vendor_uuid)d";
+    "select json_build_object('loyalty_reward', lr)\"data\" from (select lr.*, json_build_object('data', v)vendor from loyalty_rewards lr inner join vendors v on v.uuid=lr.vendor_uuid)lr";
   const count_query = sequelize.query(query, {
     bind,
     type: Sequelize.QueryTypes.SELECT
@@ -16,11 +16,11 @@ exports.getDeals = ({ where, limit, offset }) => {
   });
   return Promise.all([count_query, select_query]).then(results => {
     const count = results[0][0].count;
-    const deals = results[1];
+    const loyalty_rewards = results[1];
     return {
-      deals,
+      loyalty_rewards,
       count,
-      end: !deals.length
+      end: !loyalty_rewards.length
     };
   });
 };

@@ -1,6 +1,7 @@
 const { Customer } = require("../../");
 const bcrypt = require("bcrypt");
 const Errors = require("../../../constants/Errors");
+const { createNewError } = require("../../../utils");
 
 exports.removeProtected = user => {
   const protectedUser = { ...user.get() };
@@ -9,7 +10,18 @@ exports.removeProtected = user => {
 };
 
 exports.validateCustomer = customer => {
-  return customer.validate().then(validated => validated.save());
+  return customer.validate().then(validated =>
+    validated.save({
+      fields: [
+        "is_searchable",
+        "email",
+        "password",
+        "device_token",
+        "device_uuid",
+        "phone"
+      ]
+    })
+  );
 };
 
 exports.findOrCreate = customer => {

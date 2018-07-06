@@ -9,7 +9,7 @@ const controllers = {
   ...require("./vendor.rewards"),
   ...require("./vendor.deals"),
   ...require("./deals"),
-  ...require("./loyalty_rewards")
+  ...require("./rewards")
 };
 
 const wrappedControllers = {};

@@ -1,4 +1,3 @@
-// route: /api/vendors
 const router = require("express").Router();
 const {
   getVendor,
@@ -10,12 +9,6 @@ const { createNewError } = require("../../../utils");
 const Errors = require("../../../constants/Errors");
 const auth = require("../../../middleware/auth");
 const { USER_ROLES } = require("../../../db/schemas/constants");
-
-router.use("/employees", require("./vendor.employees.router"));
-router.use("/customers/reward", require("./vendor.customer.reward.router"));
-router.use("/customers/deal", require("./vendor.customer.deal.router"));
-router.use("/rewards", require("./vendor.rewards.router"));
-router.use("/deals", require("./vendor.deals.router"));
 
 router.get("/:vendorId", (req, res) => {
   getVendor(req.params.vendorId)
@@ -84,7 +77,7 @@ router.put("/:vendorId", auth.canModifyVendor, (req, res) => {
 
 router.delete("/:vendorId", auth.canModifyVendor, (req, res) => {
   deleteVendor(req.params.vendorId)
-    .then(() => res.status(200).end())
+    .then(deleted_rows => res.status(200).send({ deleted_rows }))
     .catch(res.sendError);
 });
 
