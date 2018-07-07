@@ -12,7 +12,6 @@ exports.loginCustomer = submittedCreds =>
   Customer.findOne({ where: { email: submittedCreds.email } })
     .then(customer => {
       if (!customer) throw createNewError(Errors.ACCOUNT_NOT_FOUND);
-      console.log("---->>>>", customer);
       return customer;
     })
     .then(customer => validatePassword(customer, submittedCreds))
@@ -31,17 +30,6 @@ exports.getCustomer = id =>
 exports.createCustomer = customer => {
   delete customer.uuid;
   return findOrCreate(customer).then(removeProtected);
-  // .catch(err => {
-  //   console.log("-----TODO...double check this --", err);
-  //   if (err.IS_HASH_ERROR) throw err;
-  //   else if (err.name === "SequelizeValidationError") {
-  //     if (err.errors[0].path === "email") {
-  //       throw createNewError(Errors.INVALID_EMAIL, {
-  //         stackTrace: new Error(Errors.INVALID_EMAIL)
-  //       });
-  //     }
-  //   }
-  // });
 };
 
 exports.updateCustomer = (id, updates) => {
