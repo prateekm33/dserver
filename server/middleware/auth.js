@@ -14,7 +14,8 @@ const { getSuperAdmin } = require("../routes/controllers/gotham.router");
 exports.isAdmin = (req, res, next) => {
   if (
     req.user.role !== USER_ROLES.SUPERADMIN &&
-    req.user.role !== USER_ROLES.VENDOR_ADMIN
+    req.user.role !== USER_ROLES.VENDOR_ADMIN &&
+    req.user.role !== USER_ROLES.VENDOR_ACCOUNT_OWNER
   ) {
     return sendUnauthorizedMessage(res);
   } else if (
@@ -22,7 +23,12 @@ exports.isAdmin = (req, res, next) => {
     req.params.vendorId !== req.user.vendor_uuid
   ) {
     return sendUnauthorizedMessage(res);
-  } else next();
+  } else if (
+    req.user.role === USER_ROLES.VENDOR_ACCOUNT_OWNER &&
+    req.params.vendorId !== req.user.vendor_uuid
+  )
+    return sendUnauthorizedMessage(res);
+  else next();
 };
 
 exports.isVendorEmployee = (req, res, next) => {
@@ -80,7 +86,10 @@ exports.canModifyVendor = (req, res, next) => {
     req.params.vendorId !== req.user.vendor_uuid
   )
     return sendUnauthorizedMessage(res);
-  else if (req.user.role !== USER_ROLES.VENDOR_ADMIN)
+  else if (
+    req.user.role !== USER_ROLES.VENDOR_ACCOUNT_OWNER &&
+    req.user.role !== USER_ROLES.VENDOR_ADMIN
+  )
     return sendUnauthorizedMessage(res);
 
   next();

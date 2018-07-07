@@ -8,7 +8,7 @@ const {
   updateVendorEmployee,
   deleteVendorEmployee
 } = require("../../../db/controllers");
-const { createNewError } = require("../../../utils");
+const { createNewError, sendUnauthorizedMessage } = require("../../../utils");
 const Errors = require("../../../constants/Errors");
 const { USER_ROLES } = require("../../../db/schemas/constants");
 
@@ -55,6 +55,13 @@ router.post("/:vendorId", auth.isAdmin, (req, res) => {
         .status(400)
         .send(createNewError(Errors.NOT_AUTHORIZED_FOR_VENDOR));
   }
+  if (
+    req.user.role !== USER_ROLES.SUPERADMIN &&
+    req.user.role !== USER_ROLES.VENDOR_ACCOUNT_OWNER &&
+    req.body.employee.role === USER_ROLES.VENDOR_ACCOUNT_OWNER
+  ) {
+    return sendUnauthorizedMessage(res);
+  }
 
   req.body.employee.vendor_uuid = req.params.vendorId;
   createVendorEmployee(req.body.employee)
@@ -89,6 +96,14 @@ router.put("/:vendorId/:userId", auth.canAccessVendorEmployee, (req, res) => {
       return res
         .status(400)
         .send(createNewError(Errors.NOT_AUTHORIZED_FOR_VENDOR));
+  }
+
+  if (
+    req.user.role !== USER_ROLES.SUPERADMIN &&
+    req.user.role !== USER_ROLES.VENDOR_ACCOUNT_OWNER &&
+    req.body.updates.role === USER_ROLES.VENDOR_ACCOUNT_OWNER
+  ) {
+    return sendUnauthorizedMessage(res);
   }
 
   updateVendorEmployee(req.params.userId, req.body.updates)

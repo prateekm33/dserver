@@ -31,7 +31,8 @@ module.exports = (sequelize, Vendor) => {
           isValidEmployeeType(value) {
             if (
               value !== USER_ROLES.VENDOR_ADMIN &&
-              value !== USER_ROLES.VENDOR_EMPLOYEE
+              value !== USER_ROLES.VENDOR_EMPLOYEE &&
+              value !== USER_ROLES.VENDOR_ACCOUNT_OWNER
             )
               throw createNewError(Errors.INVALID_EMPLOYEE_ACCOUNT_TYPE);
           }
