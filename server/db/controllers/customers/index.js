@@ -46,8 +46,8 @@ exports.updateCustomer = (id, updates) => {
       return customer;
     })
     .then(validateCustomer)
-    .then(removeProtected)
-    .then(saveCustomerSession);
+    .then(removeProtected);
+  // .then(saveCustomerSession);
 };
 
 exports.deleteCustomer = uuid =>

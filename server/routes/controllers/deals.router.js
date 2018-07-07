@@ -17,7 +17,7 @@ router.get("/", (req, res) => {
     limit: +req.query.limit || 20,
     offset: +req.query.offset || 0
   })
-    .then(response => res.status(200).send(response))
+    .then(response => res.status(200).sendResponseWithUser(response))
     .catch(res.sendError);
 });
 

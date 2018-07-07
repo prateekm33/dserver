@@ -13,7 +13,7 @@ const { USER_ROLES } = require("../../../db/schemas/constants");
 
 router.get("/:vendorId", (req, res) => {
   getVendor(req.params.vendorId)
-    .then(vendor => res.status(200).send({ vendor }))
+    .then(vendor => res.status(200).sendResponseWithUser({ vendor }))
     .catch(res.sendError);
 });
 
@@ -48,7 +48,7 @@ router.post("/", (req, res) => {
       );
   }
   createVendor(req.body.vendor)
-    .then(vendor => res.status(200).send({ vendor }))
+    .then(vendor => res.status(200).sendResponseWithUser({ vendor }))
     .catch(res.sendError);
 });
 
@@ -72,13 +72,15 @@ router.put("/:vendorId", auth.canModifyVendor, (req, res) => {
   }
 
   updateVendor(req.params.vendorId, req.body.updates)
-    .then(vendor => res.status(200).send({ vendor }))
+    .then(vendor => res.status(200).sendResponseWithUser({ vendor }))
     .catch(res.sendError);
 });
 
 router.delete("/:vendorId", auth.canModifyVendor, (req, res) => {
   deleteVendor(req.params.vendorId)
-    .then(deleted_rows => res.status(200).send({ deleted_rows }))
+    .then(deleted_rows =>
+      res.status(200).sendResponseWithUser({ deleted_rows })
+    )
     .catch(res.sendError);
 });
 

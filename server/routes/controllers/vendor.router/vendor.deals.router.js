@@ -37,7 +37,9 @@ router.get("/:vendorId/:dealId?", (req, res) => {
       offset: +req.query.offset || 0
     });
   }
-  promise.then(response => res.status(200).send(response)).catch(res.sendError);
+  promise
+    .then(response => res.status(200).sendResponseWithUser(response))
+    .catch(res.sendError);
 });
 
 router.post("/:vendorId", auth.canAccessVendor, auth.isAdmin, (req, res) => {
@@ -56,7 +58,7 @@ router.post("/:vendorId", auth.canAccessVendor, auth.isAdmin, (req, res) => {
       );
   }
   createVendorDeal(req.params.vendorId, req.body.deal)
-    .then(deal => res.status(200).send({ deal }))
+    .then(deal => res.status(200).sendResponseWithUser({ deal }))
     .catch(res.sendError);
 });
 
@@ -91,7 +93,7 @@ router.put(
       },
       req.body.updates
     )
-      .then(deal => res.status(200).send({ deal }))
+      .then(deal => res.status(200).sendResponseWithUser({ deal }))
       .catch(res.sendError);
   }
 );
@@ -104,7 +106,9 @@ router.delete(
     deleteVendorDeal(req.params.vendorId, {
       deal_uuid: req.params.dealId
     })
-      .then(deleted_rows => res.status(200).send({ deleted_rows }))
+      .then(deleted_rows =>
+        res.status(200).sendResponseWithUser({ deleted_rows })
+      )
       .catch(res.sendError);
   }
 );

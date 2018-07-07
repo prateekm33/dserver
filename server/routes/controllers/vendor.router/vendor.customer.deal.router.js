@@ -24,7 +24,7 @@ router.get(
       customer_uuid: req.params.customerId,
       deal_uuid: req.params.dealId
     })
-      .then(deal => res.status(200).send({ deal }))
+      .then(deal => res.status(200).sendResponseWithUser({ deal }))
       .catch(res.sendError);
   }
 );
@@ -41,7 +41,7 @@ router.get("/:customerId", auth.canAccessCustomer, (req, res) => {
   const limit = +req.query.limit || 20;
   const offset = +req.query.offset || 0;
   getVendorCustomerDeals(undefined, { where, limit, offset })
-    .then(response => res.status(200).send(response))
+    .then(response => res.status(200).sendResponseWithUser(response))
     .catch(res.sendError);
 });
 
@@ -58,7 +58,7 @@ router.post(
       is_deleted: !!req.body.deal.is_deleted
     };
     createVendorCustomerDeal(req.params.vendorId, new_customer_deal)
-      .then(deal => res.status(200).send({ deal }))
+      .then(deal => res.status(200).sendResponseWithUser({ deal }))
       .catch(res.sendError);
   }
 );
@@ -106,7 +106,7 @@ router.put("/:customerId/:vendorId/:dealId", (req, res) => {
   };
 
   updateVendorCustomerDeal(req.params.vendorId, where, updates)
-    .then(deal => res.status(200).send({ deal }))
+    .then(deal => res.status(200).sendResponseWithUser({ deal }))
     .catch(res.sendError);
 });
 
@@ -123,7 +123,9 @@ router.delete(
       customer_uuid: req.params.customerId,
       is_used: false
     })
-      .then(deleted_rows => res.status(200).send({ deleted_rows }))
+      .then(deleted_rows =>
+        res.status(200).sendResponseWithUser({ deleted_rows })
+      )
       .catch(res.sendError);
   }
 );

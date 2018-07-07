@@ -18,9 +18,12 @@ router.post("/enter", (req, res) => {
         role: admin.role,
         uuid: admin.uuid
       };
-      const token = jwt.sign(trimmedAdmin, JWT_SESSION_SECRET);
+      const token = jwt.sign(trimmedAdmin, JWT_SESSION_SECRET, {
+        // expiresIn: "3d"
+        expiresIn: 60 * 60 * 24 * 3 // 3 days
+      });
       trimmedAdmin.token = token;
-      res.status(200).send(trimmedAdmin);
+      res.status(200).sendResponseWithUser(trimmedAdmin);
     })
     .catch(res.sendError);
 });

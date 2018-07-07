@@ -26,7 +26,11 @@ router.post("/employees/login/:vendorId", (req, res) => {
   req.body.employee.vendor_uuid = req.params.vendorId;
   loginVendorEmployee(req.body.employee)
     .then(saveVendorEmployeeSession)
-    .then(employee => res.status(200).send({ employee }))
+    .then(employee =>
+      res
+        .status(200)
+        .sendResponseWithUser({ employee, user_token: employee.token })
+    )
     .catch(res.sendError);
 });
 

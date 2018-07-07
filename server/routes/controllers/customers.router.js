@@ -32,7 +32,9 @@ router.post("/login", (req, res) => {
 
   loginCustomer(req.body.customer)
     .then(saveCustomerSession)
-    .then(customer => res.status(200).send({ customer }))
+    .then(customer =>
+      res.status(200).send({ customer, user_token: customer.token })
+    )
     .catch(res.sendError);
 });
 
@@ -44,7 +46,7 @@ router.get(
   auth.canAccessCustomer,
   (req, res) => {
     getCustomer(req.params.customerId)
-      .then(customer => res.status(200).send({ customer }))
+      .then(customer => res.status(200).sendResponseWithUser({ customer }))
       .catch(res.sendError);
   }
 );
@@ -70,7 +72,9 @@ router.post("/", (req, res) => {
 
   createCustomer(req.body.customer)
     .then(saveCustomerSession)
-    .then(customer => res.status(200).send({ customer }))
+    .then(customer =>
+      res.status(200).send({ customer, user_token: customer.token })
+    )
     .catch(res.sendError);
 });
 
@@ -98,14 +102,18 @@ router.put(
     }
 
     updateCustomer(req.params.customerId, req.body.updates)
-      .then(customer => res.status(200).send({ customer }))
+      .then(customer =>
+        res.status(200).sendResponseWithUser({ customer }, customer)
+      )
       .catch(res.sendError);
   }
 );
 
 router.delete("/:customerId", auth.validateJWT, (req, res) => {
   deleteCustomer(req.params.customerId)
-    .then(deleted_rows => res.status(200).send({ deleted_rows }))
+    .then(deleted_rows =>
+      res.status(200).sendResponseWithUser({ deleted_rows })
+    )
     .catch(res.sendError);
 });
 

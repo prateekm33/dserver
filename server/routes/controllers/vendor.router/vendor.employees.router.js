@@ -19,11 +19,11 @@ router.get("/:vendorId/:userId?", auth.canAccessVendorEmployee, (req, res) => {
     return res.status(400).send(createNewError(Errors.FORBIDDEN));
   if (req.params.userId)
     getVendorEmployee({ uuid: req.params.userId, vendor_uuid })
-      .then(employee => res.status(200).send({ employee }))
+      .then(employee => res.status(200).sendResponseWithUser({ employee }))
       .catch(res.sendError);
   else
     getVendorEmployees({ vendor_uuid })
-      .then(employees => res.status(200).send({ employees }))
+      .then(employees => res.status(200).sendResponseWithUser({ employees }))
       .catch(res.sendError);
 });
 
@@ -65,7 +65,7 @@ router.post("/:vendorId", auth.isAdmin, (req, res) => {
 
   req.body.employee.vendor_uuid = req.params.vendorId;
   createVendorEmployee(req.body.employee)
-    .then(employee => res.status(200).send({ employee }))
+    .then(employee => res.status(200).sendResponseWithUser({ employee }))
     .catch(res.sendError);
 });
 
@@ -107,7 +107,9 @@ router.put("/:vendorId/:userId", auth.canAccessVendorEmployee, (req, res) => {
   }
 
   updateVendorEmployee(req.params.userId, req.body.updates)
-    .then(employee => res.status(200).send({ employee }))
+    .then(employee =>
+      res.status(200).sendResponseWithUser({ employee }, employee)
+    )
     .catch(res.sendError);
 });
 
@@ -116,7 +118,9 @@ router.delete(
   auth.canAccessVendorEmployee,
   (req, res) => {
     deleteVendorEmployee(req.params.userId)
-      .then(deleted_rows => res.status(200).send({ deleted_rows }))
+      .then(deleted_rows =>
+        res.status(200).sendResponseWithUser({ deleted_rows })
+      )
       .catch(res.sendError);
   }
 );

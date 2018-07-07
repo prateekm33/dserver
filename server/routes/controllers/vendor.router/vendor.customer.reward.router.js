@@ -20,7 +20,9 @@ router.get(
       customer_uuid: req.params.customerId,
       loyalty_reward_uuid: req.params.loyaltyRewardId
     })
-      .then(loyalty_reward => res.status(200).send({ loyalty_reward }))
+      .then(loyalty_reward =>
+        res.status(200).sendResponseWithUser({ loyalty_reward })
+      )
       .catch(res.sendError);
   }
 );
@@ -31,7 +33,7 @@ router.get("/:customerId", auth.canAccessCustomerRewards, (req, res) => {
   const limit = +req.query.limit || 20;
   const offset = +req.query.offset || 0;
   getVendorCustomerLoyaltyRewardCards(undefined, { where, limit, offset })
-    .then(response => res.status(200).send(response))
+    .then(response => res.status(200).sendResponseWithUser(response))
     .catch(res.sendError);
 });
 
@@ -52,7 +54,9 @@ router.post("/:customerId/:vendorId/:loyaltyRewardId", (req, res) => {
     loyalty_reward_uuid: req.params.loyaltyRewardId
   };
   createVendorCustomerLoyaltyRewardCard(req.params.vendorId, new_customer_card)
-    .then(loyalty_reward => res.status(200).send({ loyalty_reward }))
+    .then(loyalty_reward =>
+      res.status(200).sendResponseWithUser({ loyalty_reward })
+    )
     .catch(res.sendError);
 });
 
@@ -88,7 +92,9 @@ router.put(
       where,
       req.body.updates
     )
-      .then(loyalty_reward => res.status(200).send({ loyalty_reward }))
+      .then(loyalty_reward =>
+        res.status(200).sendResponseWithUser({ loyalty_reward })
+      )
       .catch(res.sendError);
   }
 );
@@ -101,7 +107,9 @@ router.delete(
       loyalty_reward_uuid: req.params.loyaltyRewardId,
       customer_uuid: req.params.customerId
     })
-      .then(deleted_rows => res.status(200).send({ deleted_rows }))
+      .then(deleted_rows =>
+        res.status(200).sendResponseWithUser({ deleted_rows })
+      )
       .catch(res.sendError);
   }
 );

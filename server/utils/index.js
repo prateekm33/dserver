@@ -108,7 +108,10 @@ exports.saveCustomerSession = customer => {
     username: customer.username,
     role: customer.role
   };
-  const token = jwt.sign(trimmedCustomer, config.JWT_SESSION_SECRET);
+  const token = jwt.sign(trimmedCustomer, config.JWT_SESSION_SECRET, {
+    // expiresIn: "3d"
+    expiresIn: 60 * 60 * 24 * 3 // 3 days
+  });
   customer.token = token;
   return customer;
 };
@@ -126,7 +129,9 @@ exports.saveVendorEmployeeSession = employee => {
     vendor_uuid: employee.vendor_uuid,
     role: employee.role
   };
-  const token = jwt.sign(trimmedEmployee, config.JWT_SESSION_SECRET);
+  const token = jwt.sign(trimmedEmployee, config.JWT_SESSION_SECRET, {
+    expiresIn: 60 * 60 * 24 * 3 // 3 days
+  });
   employee.token = token;
   return employee;
 };

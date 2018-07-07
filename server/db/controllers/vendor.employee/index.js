@@ -58,8 +58,8 @@ exports.updateVendorEmployee = (uuid, updates) => {
       return employee;
     })
     .then(validateVendorEmployee)
-    .then(removeProtected)
-    .then(saveVendorEmployeeSession);
+    .then(removeProtected);
+  // .then(saveVendorEmployeeSession);
 };
 
 exports.deleteVendorEmployee = uuid =>

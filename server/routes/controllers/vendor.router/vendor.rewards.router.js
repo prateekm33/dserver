@@ -37,7 +37,9 @@ router.get("/:vendorId/:loyaltyRewardId?", (req, res) => {
       offset: +req.query.offset || 0
     });
   }
-  promise.then(response => res.status(200).send(response)).catch(res.sendError);
+  promise
+    .then(response => res.status(200).sendResponseWithUser(response))
+    .catch(res.sendError);
 });
 
 router.post("/:vendorId", auth.canAccessVendor, auth.isAdmin, (req, res) => {
@@ -62,7 +64,9 @@ router.post("/:vendorId", auth.canAccessVendor, auth.isAdmin, (req, res) => {
   const loyalty_reward = req.body.loyalty_reward;
   loyalty_reward.vendor_uuid = req.params.vendorId;
   createVendorReward(loyalty_reward, req.params.vendorId)
-    .then(loyalty_reward => res.status(200).send({ loyalty_reward }))
+    .then(loyalty_reward =>
+      res.status(200).sendResponseWithUser({ loyalty_reward })
+    )
     .catch(res.sendError);
 });
 
@@ -97,7 +101,9 @@ router.put(
       },
       req.body.updates
     )
-      .then(loyalty_reward => res.status(200).send({ loyalty_reward }))
+      .then(loyalty_reward =>
+        res.status(200).sendResponseWithUser({ loyalty_reward })
+      )
       .catch(res.sendError);
   }
 );
@@ -111,7 +117,9 @@ router.delete(
       vendor_uuid: req.params.vendorId,
       loyalty_reward_uuid: req.params.loyaltyRewardId
     })
-      .then(deleted_rows => res.status(200).send({ deleted_rows }))
+      .then(deleted_rows =>
+        res.status(200).sendResponseWithUser({ deleted_rows })
+      )
       .catch(res.sendError);
   }
 );
