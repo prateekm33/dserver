@@ -1,3 +1,4 @@
+// route: /api/vendors
 const router = require("express").Router();
 const {
   getVendor,

@@ -38,9 +38,9 @@ exports.getVendorRewards = (vendor_uuid, { limit, offset }) => {
   });
   return Promise.all([count_query, select_query]).then(results => {
     const count = results[0][0].count;
-    const deals = results[1];
-    if (!deals.length) return { deals, end: true, count };
-    return { deals, end: false, count };
+    const loyalty_rewards = results[1];
+    if (!loyalty_rewards.length) return { loyalty_rewards, end: true, count };
+    return { loyalty_rewards, end: false, count };
   });
 };
 // LoyaltyReward.findAll({ where });

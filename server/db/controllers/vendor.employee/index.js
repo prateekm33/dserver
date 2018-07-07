@@ -22,7 +22,9 @@ exports.loginVendorEmployee = submittedCreds => {
 };
 
 exports.getVendorEmployee = where => {
-  return VendorEmployee.findOne({ where })
+  return VendorEmployee.findOne({
+    where
+  })
     .then(employee => {
       if (employee) return employee;
       throw createNewError(Errors.EMPLOYEE_NOT_FOUND, {
@@ -30,6 +32,12 @@ exports.getVendorEmployee = where => {
       });
     })
     .then(removeProtected);
+};
+
+exports.getVendorEmployees = where => {
+  return VendorEmployee.findAll({
+    where
+  });
 };
 
 exports.createVendorEmployee = employee => {

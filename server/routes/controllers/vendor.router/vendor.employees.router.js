@@ -3,23 +3,28 @@ const router = require("express").Router();
 const auth = require("../../../middleware/auth");
 const {
   getVendorEmployee,
+  getVendorEmployees,
   createVendorEmployee,
   updateVendorEmployee,
   deleteVendorEmployee
 } = require("../../../db/controllers");
-const { createNewError, saveVendorEmployeeSession } = require("../../../utils");
+const { createNewError } = require("../../../utils");
 const Errors = require("../../../constants/Errors");
 const { USER_ROLES } = require("../../../db/schemas/constants");
 
-router.get("/:vendorId/:userId", auth.canAccessVendorEmployee, (req, res) => {
+router.get("/:vendorId/:userId?", auth.canAccessVendorEmployee, (req, res) => {
   const vendor_uuid = req.user.vendor_uuid;
   // TODO--- make sure that vendor_uuid is in req.user
   if (req.user.role !== USER_ROLES.SUPERADMIN && !vendor_uuid)
     return res.status(400).send(createNewError(Errors.FORBIDDEN));
-
-  getVendorEmployee({ uuid: req.params.userId, vendor_uuid })
-    .then(employee => res.status(200).send({ employee }))
-    .catch(res.sendError);
+  if (req.params.userId)
+    getVendorEmployee({ uuid: req.params.userId, vendor_uuid })
+      .then(employee => res.status(200).send({ employee }))
+      .catch(res.sendError);
+  else
+    getVendorEmployees({ vendor_uuid })
+      .then(employees => res.status(200).send({ employees }))
+      .catch(res.sendError);
 });
 
 router.post("/:vendorId", auth.isAdmin, (req, res) => {
@@ -53,7 +58,7 @@ router.post("/:vendorId", auth.isAdmin, (req, res) => {
 
   req.body.employee.vendor_uuid = req.params.vendorId;
   createVendorEmployee(req.body.employee)
-    .then(user => res.status(200).send({ user }))
+    .then(employee => res.status(200).send({ employee }))
     .catch(res.sendError);
 });
 
@@ -87,7 +92,7 @@ router.put("/:vendorId/:userId", auth.canAccessVendorEmployee, (req, res) => {
   }
 
   updateVendorEmployee(req.params.userId, req.body.updates)
-    .then(user => res.status(200).send({ user }))
+    .then(employee => res.status(200).send({ employee }))
     .catch(res.sendError);
 });
 
