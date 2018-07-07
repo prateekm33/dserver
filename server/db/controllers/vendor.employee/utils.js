@@ -3,14 +3,14 @@ const bcrypt = require("bcrypt");
 const Errors = require("../../../constants/Errors");
 const { createNewError } = require("../../../utils");
 
-exports.removeProtected = user => {
-  const protectedUser = { ...user.get() };
-  delete protectedUser.password;
-  return protectedUser;
+exports.removeProtected = employee => {
+  const protectedEmployee = { ...employee.get() };
+  delete protectedEmployee.password;
+  return protectedEmployee;
 };
 
-exports.validateVendorEmployee = user => {
-  return user.validate().then(validated =>
+exports.validateVendorEmployee = employee => {
+  return employee.validate().then(validated =>
     validated.save({
       fields: [
         "first_name",

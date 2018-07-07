@@ -22,6 +22,7 @@ module.exports = (sequelize, Vendor) => {
           isEmail: true
         }
       },
+      username: { type: Sequelize.STRING, unique: true },
       password: { type: Sequelize.STRING },
       role: {
         type: Sequelize.STRING,

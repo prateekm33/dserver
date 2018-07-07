@@ -18,7 +18,7 @@ router.get("/:vendorId/:userId", auth.canAccessVendorEmployee, (req, res) => {
     return res.status(400).send(createNewError(Errors.FORBIDDEN));
 
   getVendorEmployee({ uuid: req.params.userId, vendor_uuid })
-    .then(user => res.status(200).send({ user }))
+    .then(employee => res.status(200).send({ employee }))
     .catch(res.sendError);
 });
 

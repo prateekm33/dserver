@@ -4,8 +4,8 @@ const Errors = require("../../../constants/Errors");
 const { createNewError } = require("../../../utils");
 
 exports.getVendor = id =>
-  Vendor.findById(id).then(user => {
-    if (user) return user;
+  Vendor.findById(id).then(vendor => {
+    if (vendor) return vendor;
     throw createNewError(Errors.VENDOR_NOT_FOUND, {
       stackTrace: new Error(Errors.VENDOR_NOT_FOUND)
     });

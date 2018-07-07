@@ -46,6 +46,7 @@ const _ERRORS = [
     })
   ],
   ["USER_NOT_FOUND", code => ({ message: "User not found.", code })],
+  ["EMPLOYEE_NOT_FOUND", code => ({ message: "Employee not found.", code })],
   ["CUSTOMER_NOT_FOUND", code => ({ message: "Customer not found.", code })],
   ["VENDOR_NOT_FOUND", code => ({ message: "Vendor does not exist.", code })],
   ["MODEL_NOT_FOUND", code => ({ message: "Model not found.", code })],

@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 
 module.exports = app => {
   app.use("/api/customers", require("./controllers/customers.router"));
+  app.use("/api/employees", require("./controllers/employees.router"));
   app.use("/api/vendors", require("./controllers/vendor.router"));
   app.use(
     "/api/deals",
