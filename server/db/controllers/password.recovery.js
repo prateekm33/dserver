@@ -1,10 +1,5 @@
 const crypto = require("crypto");
-const {
-  PasswordRecoveryCustomer,
-  PasswordRecoveryVendor,
-  Customer,
-  VendorEmployee
-} = require("../");
+const { PasswordRecoveryCustomer, PasswordRecoveryVendor } = require("../");
 const { findCustomer } = require("./customers");
 const { getVendorEmployee } = require("./vendor.employee");
 const Errors = require("../../constants/Errors");
@@ -85,6 +80,21 @@ function generatePasswordResetToken() {
 }
 
 function emailPasswordRecoveryLinkCustomer(email, token) {
+  const data = {
+    from: config.MAILGUN.FROM_ADDRESS,
+    to: "prateekm33@gmail.com", // TODO...replace with email variable
+    subject: `Password Recovery Instructions - Dineable`,
+    html: `<a href='${config.SERVER.PROTOCOL}://${config.SERVER.DOMAIN}${
+      config.SERVER.PORT ? ":" + config.SERVER.PORT : ""
+    }/password_recovery?token=${token}'>Recover your password</a>`
+  };
+
+  mailgun
+    .messages()
+    .send(data)
+    .then(() => res.status(200).end())
+    .catch(catchControllerErrors)
+    .catch(res.sendError);
   console.warn(
     "------TODO...complete. need an email service (ie: nodemailer), a landing page for resetting passwords, a proper landing page url, etc"
   );
