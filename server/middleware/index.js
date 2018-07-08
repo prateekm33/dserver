@@ -27,7 +27,10 @@ module.exports = app => {
       else user_with_token = method(req.user);
 
       res.send(
-        Object.assign({}, response, { user_token: user_with_token.token })
+        Object.assign({}, response, {
+          user_token: user_with_token.token,
+          user_uuid: user_with_token.uuid
+        })
       );
     };
 
