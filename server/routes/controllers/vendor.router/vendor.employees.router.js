@@ -16,7 +16,9 @@ router.get("/:vendorId/:userId?", auth.canAccessVendorEmployee, (req, res) => {
   const vendor_uuid = req.user.vendor_uuid;
   // TODO--- make sure that vendor_uuid is in req.user
   if (req.user.role !== USER_ROLES.SUPERADMIN && !vendor_uuid)
-    return res.status(400).send(createNewError(Errors.FORBIDDEN));
+    return res
+      .status(400)
+      .send(createNewError(Errors.NOT_AUTHORIZED_FOR_VENDOR));
   if (req.params.userId)
     getVendorEmployee({ uuid: req.params.userId, vendor_uuid })
       .then(employee => res.status(200).sendResponseWithUser({ employee }))

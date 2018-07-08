@@ -137,9 +137,13 @@ exports.saveVendorEmployeeSession = employee => {
 };
 
 exports.isVendorEmployee = req => {
+  return exports.isVendorEmployeeUtility(req.user, req.params.vendorId);
+};
+
+exports.isVendorEmployeeUtility = (user, vendor_uuid) => {
   return !(
-    req.user.role === USER_ROLES.CUSTOMER ||
-    req.user.role === USER_ROLES.SUPERADMIN ||
-    req.params.vendorId !== req.user.vendor_uuid
+    user.role === USER_ROLES.CUSTOMER ||
+    user.role === USER_ROLES.SUPERADMIN ||
+    vendor_uuid !== user.vendor_uuid
   );
 };

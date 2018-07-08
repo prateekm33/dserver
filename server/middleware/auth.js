@@ -3,7 +3,8 @@ const compose = require("compose-middleware").compose;
 const {
   createNewError,
   sendUnauthorizedMessage,
-  isVendorEmployee
+  isVendorEmployee,
+  isVendorEmployeeUtility
 } = require("../utils");
 const expressJWT = require("express-jwt");
 const { getCustomer, getVendorEmployee } = require("../db/controllers");
@@ -113,10 +114,7 @@ exports.validateJWT = compose([
       let promise;
       if (payload.role === USER_ROLES.CUSTOMER)
         promise = getCustomer(payload.uuid);
-      else if (
-        payload.role === USER_ROLES.VENDOR_ADMIN ||
-        payload.role === USER_ROLES.VENDOR_EMPLOYEE
-      ) {
+      else if (isVendorEmployeeUtility(payload, payload.vendor_uuid)) {
         promise = getVendorEmployee({
           uuid: payload.uuid,
           vendor_uuid: payload.vendor_uuid
@@ -150,11 +148,7 @@ exports.validateJWT = compose([
   }),
   (err, req, res, next) => {
     if (err) {
-      const error = createNewError(
-        Errors.UNAUTHORIZED,
-        { statusCode: 401, stackTrace: new Error("Unauthorized") },
-        err
-      );
+      const error = createNewError(Errors.INVALID_TOKEN, null, err);
       res.sendError(error);
     } else {
       next();

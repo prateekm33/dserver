@@ -18,6 +18,13 @@ const _ERRORS = [
     })
   ],
   [
+    "INVALID_TOKEN",
+    code => ({
+      message: "Invalid token.",
+      code
+    })
+  ],
+  [
     "UNAUTHORIZED",
     code => ({
       message: "UNAUTHORIZED",
