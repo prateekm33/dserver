@@ -14,7 +14,8 @@ module.exports = (sequelize, Vendor) => {
       code: { type: Sequelize.STRING, defaultValue: "", unique: true },
       name: { type: Sequelize.STRING, defaultValue: "" },
       short_desc: { type: Sequelize.CHAR({ length: 100 }), defaultValue: "" },
-      long_desc: { type: Sequelize.CHAR({ length: 255 }), defaultValue: "" }
+      long_desc: { type: Sequelize.CHAR({ length: 255 }), defaultValue: "" },
+      points_reward_ratio: { type: Sequelize.DOUBLE }
     },
     { underscored: true }
   );
