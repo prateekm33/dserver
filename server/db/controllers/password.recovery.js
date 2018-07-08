@@ -19,9 +19,10 @@ exports.generatePasswordResetLinkCustomer = customer => {
           customer_uuid: customer.uuid
         }
       }).then(found => {
-        console.log("-----found ? ", found);
         if (!found) return customer;
-        throw createNewError(Errors.EXISTING_PASSWORD_RESET_REQUEST);
+        if (moment(found.expiration_date).isAfter(moment()))
+          throw createNewError(Errors.EXISTING_PASSWORD_RESET_REQUEST);
+        return customer;
       });
     })
     .then(customer => {
@@ -53,7 +54,9 @@ exports.generatePasswordResetLinkVendor = employee => {
         }
       }).then(found => {
         if (!found) return employee;
-        throw createNewError(Errors.EXISTING_PASSWORD_RESET_REQUEST);
+        if (moment(found.expiration_date).isAfter(moment()))
+          throw createNewError(Errors.EXISTING_PASSWORD_RESET_REQUEST);
+        return employee;
       });
     })
     .then(employee => {
@@ -61,7 +64,7 @@ exports.generatePasswordResetLinkVendor = employee => {
         return PasswordRecoveryVendor.create({
           employee_uuid: employee.uuid,
           token,
-          expiration_date: moment().add(1, "h")
+          expiration_date: moment().add(1, "m")
         }).then(result => ({
           token: result.token,
           email: customer.email
@@ -77,7 +80,7 @@ function generatePasswordResetToken() {
   return new Promise((res, rej) => {
     crypto.randomBytes(256, (err, buff) => {
       if (err) return rej(err);
-      res(buff.toString("hex" /* utf-8 is default type */));
+      res(buff.toString("hex", 0, 50 /* utf-8 is default type */));
     });
   });
 }

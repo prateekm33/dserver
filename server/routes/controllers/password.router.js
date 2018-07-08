@@ -35,7 +35,14 @@ router.post("/vendor/change_password", (req, res) => {
         password: req.body.password
       });
     })
-    .then(done => res.status(200).end())
+    .then(() => {
+      PasswordRecoveryVendor.destroy({
+        where: {
+          token: req.query.token
+        }
+      });
+    })
+    .then(() => res.status(200).end())
     .catch(res.sendError);
 });
 
@@ -85,6 +92,13 @@ router.post("/change_password", (req, res) => {
       if (!found) throw createNewError(Errors.INVALID_TOKEN);
       return updateCustomer(found.customer_uuid, {
         password: req.body.password
+      });
+    })
+    .then(() => {
+      PasswordRecoveryCustomer.destroy({
+        where: {
+          token: req.query.token
+        }
       });
     })
     .then(() => res.status(200).end())
