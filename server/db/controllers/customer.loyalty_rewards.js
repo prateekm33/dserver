@@ -26,7 +26,7 @@ exports.getVendorCustomerLoyaltyRewardCards = (
 ) => {
   const bind = { customer_uuid: where.customer_uuid, limit, offset };
   let query =
-    "select json_build_object('loyalty_reward', cr, 'vendor', v)\"data\" from (select lr.*,cr.points,cr.num_points_redeemed,cr.\"createdAt\"  from (select * from customer_rewards cr where cr.customer_uuid=$customer_uuid)cr inner join loyalty_rewards lr on lr.uuid=cr.loyalty_reward_uuid)cr inner join vendors v on v.uuid=cr.vendor_uuid";
+    "select json_build_object('loyalty_reward', cr, 'vendor', v)\"data\" from (select lr.*,cr.points,cr.num_points_redeemed,cr.\"created_at\"  from (select * from customer_rewards cr where cr.customer_uuid=$customer_uuid)cr inner join loyalty_rewards lr on lr.uuid=cr.loyalty_reward_uuid)cr inner join vendors v on v.uuid=cr.vendor_uuid";
 
   if (vendor_uuid) {
     bind.vendor_uuid = vendor_uuid;

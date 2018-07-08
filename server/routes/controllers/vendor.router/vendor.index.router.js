@@ -2,6 +2,7 @@
 const router = require("express").Router();
 const {
   getVendor,
+  getVendors,
   createVendor,
   updateVendor,
   deleteVendor
@@ -11,10 +12,19 @@ const Errors = require("../../../constants/Errors");
 const auth = require("../../../middleware/auth");
 const { USER_ROLES } = require("../../../db/schemas/constants");
 
-router.get("/:vendorId", (req, res) => {
-  getVendor(req.params.vendorId)
-    .then(vendor => res.status(200).sendResponseWithUser({ vendor }))
-    .catch(res.sendError);
+router.get("/:vendorId?", (req, res) => {
+  if (req.params.vendorId)
+    getVendor(req.params.vendorId)
+      .then(vendor => res.status(200).sendResponseWithUser({ vendor }))
+      .catch(res.sendError);
+  else
+    getVendors({
+      where: {},
+      limit: +req.query.limit || 20,
+      offset: +req.query.offset || 0
+    })
+      .then(vendors => res.status(200).sendResponseWithUser({ vendors }))
+      .catch(res.sendError);
 });
 
 router.post("/signup", (req, res) => {

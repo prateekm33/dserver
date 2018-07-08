@@ -11,6 +11,17 @@ const {
 const { createNewError, sendUnauthorizedMessage } = require("../../../utils");
 const Errors = require("../../../constants/Errors");
 const { USER_ROLES } = require("../../../db/schemas/constants");
+const { TokenBlacklist } = require("../../../db");
+
+router.post("/logout", (req, res) => {
+  TokenBlacklist.create({
+    token: auth.getToken(req)
+  })
+    .then(token => {
+      res.status(200).end(true);
+    })
+    .catch(res.sendError);
+});
 
 router.get("/:vendorId/:userId?", auth.canAccessVendorEmployee, (req, res) => {
   const vendor_uuid = req.user.vendor_uuid;

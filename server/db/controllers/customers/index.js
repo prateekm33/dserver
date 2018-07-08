@@ -26,7 +26,15 @@ exports.getCustomer = id =>
       });
     })
     .then(removeProtected);
-
+exports.findCustomer = where =>
+  Customer.findOne({ where })
+    .then(customer => {
+      if (customer) return customer;
+      throw createNewError(Errors.CUSTOMER_NOT_FOUND, {
+        stackTrace: new Error(Errors.CUSTOMER_NOT_FOUND)
+      });
+    })
+    .then(removeProtected);
 exports.createCustomer = customer => {
   delete customer.uuid;
   return findOrCreate(customer).then(removeProtected);

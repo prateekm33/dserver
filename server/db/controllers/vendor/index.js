@@ -10,6 +10,12 @@ exports.getVendor = id =>
       stackTrace: new Error(Errors.VENDOR_NOT_FOUND)
     });
   });
+exports.getVendors = ({ where, limit, offset }) =>
+  Vendor.findAll({
+    where: where || {},
+    limit,
+    offset
+  });
 
 exports.createVendor = vendor => {
   delete vendor.uuid;

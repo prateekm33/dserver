@@ -7,6 +7,8 @@ const {
   DBHOST,
   FORCE_SYNC
 } = require("../config").DATABASE;
+const SUPERADMIN_PASSWORD_CONFIDENTIAL = require("../config")
+  .SUPERADMIN_PASSWORD_CONFIDENTIAL;
 
 const sequelize = new Sequelize(DBNAME, DBUSER, DBPW, {
   host: DBHOST,
@@ -26,9 +28,18 @@ sequelize
   .authenticate()
   .then(() => {
     console.log("DB Connection has been established successfully.");
-    sequelize.sync({
+    return sequelize.sync({
       force: process.env.FORCE ? process.env.FORCE === "true" : FORCE_SYNC
     });
+  })
+  .then(() => {
+    if (process.env.FORCE !== "true" || !FORCE_SYNC) return;
+    const date = new Date().toISOString();
+    sequelize.query(
+      `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; insert into superadmins (uuid,role,username,password,"created_at","updated_at") values((select uuid_generate_v1()), 'SUPERADMIN', 'dineable_admin', '${
+        config.SUPERADMIN_PASSWORD_CONFIDENTIAL
+      }', '${date}', '${date}');`
+    );
   })
   .catch(err => {
     console.error("Unable to connect to the database:", err);

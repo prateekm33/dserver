@@ -24,12 +24,24 @@ module.exports = sequelize => {
     username: { type: Sequelize.STRING, unique: true },
     password: { type: Sequelize.STRING }
   });
+  const PasswordRecoveryVendor = require("./password.recovery.vendor.model")(
+    sequelize,
+    VendorEmployee
+  );
+  const PasswordRecoveryCustomer = require("./password.recovery.customer.model")(
+    sequelize,
+    Customer
+  );
+  const TokenBlacklist = require("./token.blacklist.model")(sequelize);
   return {
     Customer,
     VendorEmployee,
     LoyaltyReward,
     Deal,
     SuperAdmin,
-    Vendor
+    Vendor,
+    PasswordRecoveryVendor,
+    PasswordRecoveryCustomer,
+    TokenBlacklist
   };
 };

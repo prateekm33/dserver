@@ -23,7 +23,7 @@ exports.getVendorCustomerDeal = (vendor_uuid, where) => {
 exports.getVendorCustomerDeals = (vendor_uuid, { where, limit, offset }) => {
   const bind = { customer_uuid: where.customer_uuid, limit, offset };
   let query =
-    "select json_build_object('deal', cd, 'vendor', v)\"data\" from (select d.*,cd.is_used, cd.is_archived,cd.is_deleted,cd.is_saved,cd.\"createdAt\" from (select * from customer_deals cd where cd.customer_uuid=$customer_uuid)cd inner join deals d on d.uuid=cd.deal_uuid)cd inner join vendors v on v.uuid=cd.vendor_uuid";
+    "select json_build_object('deal', cd, 'vendor', v)\"data\" from (select d.*,cd.is_used, cd.is_archived,cd.is_deleted,cd.is_saved,cd.\"created_at\" from (select * from customer_deals cd where cd.customer_uuid=$customer_uuid)cd inner join deals d on d.uuid=cd.deal_uuid)cd inner join vendors v on v.uuid=cd.vendor_uuid";
   if (vendor_uuid) {
     bind.vendor_uuid = vendor_uuid;
     query += "and v.uuid=$vendor_uuid";

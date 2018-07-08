@@ -1,4 +1,4 @@
 node_modules
-config.prod.*
+config.*
 notes.md
 *.pem

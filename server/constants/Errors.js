@@ -25,6 +25,21 @@ const _ERRORS = [
     })
   ],
   [
+    "MISSING_PASSWORD_RESET_TOKEN",
+    code => ({
+      message: "Missing password reset token.",
+      code
+    })
+  ],
+  [
+    "EXISTING_PASSWORD_RESET_REQUEST",
+    code => ({
+      message:
+        "Please use the link that we emailed to you earlier. If you still have not received it after an hour, request for a reset link again",
+      code
+    })
+  ],
+  [
     "UNAUTHORIZED",
     code => ({
       message: "UNAUTHORIZED",

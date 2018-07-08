@@ -9,6 +9,7 @@ const {
 const expressJWT = require("express-jwt");
 const { getCustomer, getVendorEmployee } = require("../db/controllers");
 const { USER_ROLES } = require("../db/schemas/constants");
+const { TokenBlacklist } = require("../db");
 const Errors = require("../constants/Errors");
 const { getSuperAdmin } = require("../routes/controllers/gotham.router");
 
@@ -100,50 +101,59 @@ exports.validateJWT = compose([
   expressJWT({
     secret: config.JWT_SESSION_SECRET,
     getToken(req) {
-      if (
-        req.headers.authorization &&
-        req.headers.authorization.split(" ")[0] === "Bearer"
-      ) {
-        return req.headers.authorization.split(" ")[1];
-      } else if (req.query && req.query.token) {
-        return req.query.token;
-      }
-      throw "invalid";
+      return exports.getToken(req);
     },
     isRevoked(req, payload, done) {
-      let promise;
-      if (payload.role === USER_ROLES.CUSTOMER)
-        promise = getCustomer(payload.uuid);
-      else if (isVendorEmployeeUtility(payload, payload.vendor_uuid)) {
-        promise = getVendorEmployee({
-          uuid: payload.uuid,
-          vendor_uuid: payload.vendor_uuid
-        });
-      } else if (payload.role === USER_ROLES.SUPERADMIN) {
-        promise = getSuperAdmin({ where: { username: payload.username } });
-      } else return done(true);
-
-      promise
-        .then(user => {
-          if (
-            payload.role === USER_ROLES.SUPERADMIN &&
-            payload.username === user.username &&
-            payload.uuid === user.uuid
-          ) {
-            return done(null, false);
-          } else if (
-            payload.role !== USER_ROLES.SUPERADMIN &&
-            user.email === payload.email &&
-            user.uuid === payload.uuid
-          ) {
-            return done(null, false);
-          } else {
-            done(true);
-          }
+      try {
+        const token = exports.getToken(req);
+        TokenBlacklist.findOne({
+          where: { token }
         })
-        .catch(err => {
-          done(err);
-        });
+          .then(found => {
+            if (found) throw true;
+            return;
+          })
+          .then(() => {
+            let promise;
+            if (payload.role === USER_ROLES.CUSTOMER)
+              promise = getCustomer(payload.uuid);
+            else if (isVendorEmployeeUtility(payload, payload.vendor_uuid)) {
+              promise = getVendorEmployee({
+                uuid: payload.uuid,
+                vendor_uuid: payload.vendor_uuid
+              });
+            } else if (payload.role === USER_ROLES.SUPERADMIN) {
+              promise = getSuperAdmin({
+                where: { username: payload.username }
+              });
+            } else return done(true);
+
+            promise
+              .then(user => {
+                if (
+                  payload.role === USER_ROLES.SUPERADMIN &&
+                  payload.username === user.username &&
+                  payload.uuid === user.uuid
+                ) {
+                  return done(null, false);
+                } else if (
+                  payload.role !== USER_ROLES.SUPERADMIN &&
+                  user.email === payload.email &&
+                  user.uuid === payload.uuid
+                ) {
+                  return done(null, false);
+                } else {
+                  done(true);
+                }
+              })
+              .catch(err => {
+                done(err);
+              });
+          })
+          .catch(err => done(err));
+      } catch (e) {
+        done(true);
+      }
     }
   }),
   (err, req, res, next) => {
@@ -155,3 +165,15 @@ exports.validateJWT = compose([
     }
   }
 ]);
+
+exports.getToken = req => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.split(" ")[0] === "Bearer"
+  ) {
+    return req.headers.authorization.split(" ")[1];
+  } else if (req.query && req.query.token) {
+    return req.query.token;
+  }
+  throw "invalid";
+};
