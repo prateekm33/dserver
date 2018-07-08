@@ -1,0 +1,39 @@
+{
+  "SERVER": {
+    "PROTOCOL": "http",
+    "DOMAIN": "localhost",
+    "PORT": 3000
+  },
+  "APP_BUNDLE_ID": "FILL_THIS_IN",
+
+  "JWT_SESSION_SECRET": "TODO...CREATE A NEW JWT SESSION SECRET...",
+
+  "DATABASE": {
+    "ORM": "sequelize",
+    "dialect": "postgres",
+    "DBNAME": "dineable",
+    "DBUSER": "prateekmadapurmath",
+    "DBPW": "",
+    "DBHOST": "localhost",
+    "FORCE_SYNC": false
+  },
+
+  "SLACK": {
+    "webhooks": {
+      "customer-feedback": "TODO_FILL_THIS_IN"
+    }
+  },
+
+  "MAILGUN": {
+    "API_KEY": "TODO_FILL_THIS_IN",
+    "DOMAIN": "TODO_FILL_THIS_IN",
+    "FROM_ADDRESS": "TODO_FILL_THIS_IN"
+  },
+
+  "APNS": {
+    "KEY_ID": "TODO_FILL_THIS_IN",
+    "DEVELOPER_TEAM_ID": "TODO_FILL_THIS_IN"
+  },
+
+  "SUPERADMIN_PASSWORD_CONFIDENTIAL": "TODO_FILL_THIS_IN"
+}
