@@ -37,7 +37,7 @@ exports.findOrCreate = employee => {
       }
     })
     .then(() => {
-      if (!isValidPassword(employee.password))
+      if (!exports.isValidPassword(employee.password))
         throw createNewError(Errors.PASSWORD_INVALID_COMPLEXITY);
       return bcrypt
         .genSalt()
@@ -63,7 +63,7 @@ exports.validatePassword = (employee, submittedCredentials) => {
     });
 };
 
-function isValidPassword(password) {
+exports.isValidPassword = password => {
   const hasValidLength = password.length >= 6;
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);
@@ -79,4 +79,4 @@ function isValidPassword(password) {
   return (
     hasValidLength && hasUpperCase && hasLowerCase && hasNumbers && hasNonalphas
   );
-}
+};

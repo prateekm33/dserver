@@ -1,11 +1,13 @@
+const bcrypt = require("bcrypt");
 const { Customer } = require("../..");
 const {
   removeProtected,
   findOrCreate,
   validateCustomer,
-  validatePassword
+  validatePassword,
+  isValidPassword
 } = require("./utils");
-const { createNewError, saveCustomerSession } = require("../../../utils");
+const { createNewError } = require("../../../utils");
 const Errors = require("../../../constants/Errors");
 
 exports.loginCustomer = submittedCreds =>
@@ -44,9 +46,21 @@ exports.updateCustomer = (id, updates) => {
   return Customer.findById(id)
     .then(customer => {
       if (!customer) throw createNewError(Errors.CUSTOMER_NOT_FOUND);
-      console.log(
-        "------TODO...need to check if this actually works...., might have to call customer.get first"
-      );
+      return customer;
+    })
+    .then(customer => {
+      if (!updates.password) return customer;
+      if (!isValidPassword(updates.password))
+        throw createNewError(Errors.PASSWORD_INVALID_COMPLEXITY);
+      return bcrypt
+        .genSalt()
+        .then(salt => bcrypt.hash(updates.password, salt))
+        .then(hash => {
+          updates.password = hash;
+          return customer;
+        });
+    })
+    .then(customer => {
       delete updates.uuid;
       for (let attr in updates) {
         customer[attr] = updates[attr];
@@ -55,7 +69,6 @@ exports.updateCustomer = (id, updates) => {
     })
     .then(validateCustomer)
     .then(removeProtected);
-  // .then(saveCustomerSession);
 };
 
 exports.deleteCustomer = uuid =>

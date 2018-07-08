@@ -27,7 +27,7 @@ exports.updateVendor = id => {
     .then(vendor => {
       if (!vendor) throw createNewError(Errors.VENDOR_NOT_FOUND);
       console.log(
-        "------TODO...need to check if this actually works...., might have to call customer.get first"
+        "------TODO...need to check if this actually works...., might have to call vendor.get first"
       );
       delete updates.uuid;
       for (let attr in updates) {

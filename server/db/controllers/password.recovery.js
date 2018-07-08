@@ -1,22 +1,25 @@
 const crypto = require("crypto");
+const config = require("../../config");
 const { PasswordRecoveryCustomer, PasswordRecoveryVendor } = require("../");
 const { findCustomer } = require("./customers");
 const { getVendorEmployee } = require("./vendor.employee");
 const Errors = require("../../constants/Errors");
 const { createNewError } = require("../../utils");
 const moment = require("moment");
+const mailgun = require("../../utils/mailgun.client");
 
 exports.generatePasswordResetLinkCustomer = customer => {
   const customer_where = {};
   if (customer.email) customer_where.email = customer.email;
   if (customer.username) customer_where.username = customer.username;
-  return findCustomer(where)
+  return findCustomer(customer_where)
     .then(customer => {
       return PasswordRecoveryCustomer.findOne({
         where: {
-          uuid: customer.uuid
+          customer_uuid: customer.uuid
         }
       }).then(found => {
+        console.log("-----found ? ", found);
         if (!found) return customer;
         throw createNewError(Errors.EXISTING_PASSWORD_RESET_REQUEST);
       });
@@ -42,11 +45,11 @@ exports.generatePasswordResetLinkVendor = employee => {
   const employee_where = {};
   if (employee.email) employee_where.email = employee.email;
   if (employee.username) employee_where.username = employee.username;
-  return getVendorEmployee(where)
+  return getVendorEmployee(employee_where)
     .then(employee => {
       return PasswordRecoveryEmployee.findOne({
         where: {
-          uuid: employee.uuid
+          employee_uuid: employee.uuid
         }
       }).then(found => {
         if (!found) return employee;
@@ -89,13 +92,5 @@ function emailPasswordRecoveryLinkCustomer(email, token) {
     }/password_recovery?token=${token}'>Recover your password</a>`
   };
 
-  mailgun
-    .messages()
-    .send(data)
-    .then(() => res.status(200).end())
-    .catch(catchControllerErrors)
-    .catch(res.sendError);
-  console.warn(
-    "------TODO...complete. need an email service (ie: nodemailer), a landing page for resetting passwords, a proper landing page url, etc"
-  );
+  return mailgun.messages().send(data);
 }

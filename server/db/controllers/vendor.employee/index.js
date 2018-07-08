@@ -1,12 +1,14 @@
+const bcrypt = require("bcrypt");
 const { VendorEmployee } = require("../..");
 const {
   removeProtected,
   findOrCreate,
   validateVendorEmployee,
-  validatePassword
+  validatePassword,
+  isValidPassword
 } = require("./utils");
 const Errors = require("../../../constants/Errors");
-const { createNewError, saveVendorEmployeeSession } = require("../../../utils");
+const { createNewError } = require("../../../utils");
 
 exports.loginVendorEmployee = submittedCreds => {
   const where = { username: submittedCreds.username };
@@ -48,6 +50,21 @@ exports.updateVendorEmployee = (uuid, updates) => {
   return VendorEmployee.findById(uuid)
     .then(employee => {
       if (!employee) throw createNewError(Errors.EMPLOYEE_NOT_FOUND);
+      return employee;
+    })
+    .then(employee => {
+      if (!updates.password) return employee;
+      if (!isValidPassword(updates.password))
+        throw createNewError(Errors.PASSWORD_INVALID_COMPLEXITY);
+      return bcrypt
+        .genSalt()
+        .then(salt => bcrypt.hash(updates.password, salt))
+        .then(hash => {
+          updates.password = hash;
+          return employee;
+        });
+    })
+    .then(employee => {
       console.log(
         "------TODO...need to check if this actually works...., might have to call employee.get first"
       );
@@ -59,7 +76,6 @@ exports.updateVendorEmployee = (uuid, updates) => {
     })
     .then(validateVendorEmployee)
     .then(removeProtected);
-  // .then(saveVendorEmployeeSession);
 };
 
 exports.deleteVendorEmployee = uuid =>

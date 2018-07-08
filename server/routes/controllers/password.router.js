@@ -7,7 +7,10 @@ const {
   PasswordRecoveryCustomer,
   PasswordRecoveryVendor
 } = require("../../db");
-const { updateCustomer } = require("../../db/controllers");
+const {
+  updateCustomer,
+  updateVendorEmployee
+} = require("../../db/controllers");
 
 router.get("/invalid", (req, res) => {
   res.sendFile("password_recovery_invalid.html", {
@@ -28,7 +31,7 @@ router.post("/vendor/change_password", (req, res) => {
   })
     .then(found => {
       if (!found) throw createNewError(Errors.INVALID_TOKEN);
-      return updateCustomer(found.vendor_employee_uuid, {
+      return updateVendorEmployee(found.vendor_employee_uuid, {
         password: req.body.password
       });
     })

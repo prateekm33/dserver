@@ -4,7 +4,7 @@ module.exports = (sequelize, VendorEmployee) => {
   const PasswordRecoveryVendor = sequelize.define(
     "vendor_password_recovery",
     {
-      token: { type: Sequelize.STRING },
+      token: { type: Sequelize.TEXT },
       expiration_date: { type: Sequelize.DATE }
     },
     { underscored: true }
