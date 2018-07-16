@@ -10,11 +10,18 @@ exports.getVendor = id =>
       stackTrace: new Error(Errors.VENDOR_NOT_FOUND)
     });
   });
+
 exports.getVendors = ({ where, limit, offset }) =>
   Vendor.findAll({
     where: where || {},
     limit,
     offset
+  }).then(res => {
+    return {
+      end: !(res || []).length,
+      vendors: res,
+      count: (res || []).length
+    };
   });
 
 exports.createVendor = vendor => {

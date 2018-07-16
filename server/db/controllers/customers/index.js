@@ -75,3 +75,6 @@ exports.deleteCustomer = uuid =>
   Customer.destroy({ where: { uuid } }).then(rows => {
     if (!rows) throw createNewError(Errors.NOT_DELETED);
   });
+
+exports.getCustomerDeviceToken = uuid =>
+  exports.getCustomer(uuid).then(customer => customer.device_token);

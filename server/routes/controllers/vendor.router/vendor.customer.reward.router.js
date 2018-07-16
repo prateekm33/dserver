@@ -92,9 +92,29 @@ router.put(
       where,
       req.body.updates
     )
-      .then(loyalty_reward =>
-        res.status(200).sendResponseWithUser({ loyalty_reward })
-      )
+      .then(loyalty_reward => {
+        res.status(200).sendResponseWithUser({ loyalty_reward });
+        let promise = Promise.resolve(req.body.device_token);
+        if (!req.body.device_token)
+          promise = getCustomerDeviceToken(req.params.customerId);
+        return promise.then(token => {
+          if (!req.body.type) return;
+          let message;
+          if (req.body.type === "earn") {
+            message =
+              "Congratulations, you earned some points! Keep racking up those points and cash 'em in for some awesome rewards.";
+          } else if (req.body.type === "redeem") {
+            message = `Awesome, You redeemed some points! Unleash the power of loyalty.`;
+          }
+
+          return notifications_client.sendNotification(token, {
+            message_from: req.user.vendor_uuid,
+            body: {
+              message
+            }
+          });
+        });
+      })
       .catch(res.sendError);
   }
 );

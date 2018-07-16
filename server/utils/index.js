@@ -103,8 +103,8 @@ exports.saveCustomerSession = customer => {
     email: customer.email,
     device_token: customer.device_token,
     device_uuid: customer.device_uuid,
-    first_name: customer.first_name,
-    last_name: customer.last_name,
+    // first_name: customer.first_name,
+    // last_name: customer.last_name,
     username: customer.username,
     role: customer.role
   };
@@ -123,8 +123,8 @@ exports.saveVendorEmployeeSession = employee => {
     email: employee.email,
     device_token: employee.device_token,
     device_uuid: employee.device_uuid,
-    first_name: employee.first_name,
-    last_name: employee.last_name,
+    // first_name: employee.first_name,
+    // last_name: employee.last_name,
     username: employee.username,
     vendor_uuid: employee.vendor_uuid,
     role: employee.role

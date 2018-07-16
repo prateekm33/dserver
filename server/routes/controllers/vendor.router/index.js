@@ -27,9 +27,7 @@ router.post("/employees/login/:vendorId", (req, res) => {
   loginVendorEmployee(req.body.employee)
     .then(saveVendorEmployeeSession)
     .then(employee =>
-      res
-        .status(200)
-        .sendResponseWithUser({ employee, user_token: employee.token })
+      res.status(200).send({ employee, user_token: employee.token })
     )
     .catch(res.sendError);
 });

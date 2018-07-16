@@ -14,24 +14,28 @@ module.exports = app => {
   app.use((req, res, next) => {
     res.sendResponseWithUser = (response, modified_user) => {
       if (!req.user) return res.send(response);
-      let user_with_token;
       if (req.user.role === USER_ROLES.CUSTOMER) method = saveCustomerSession;
       else if (isVendorEmployee(req)) method = saveVendorEmployeeSession;
 
+      let user_with_token;
       if (
         modified_user &&
-        req.user.role === modified_user.role &&
-        req.user.uuid === modified_user.uuid
-      )
+        modified_user.uuid === req.user.uuid &&
+        modified_user.role !== req.user.role &&
+        (modified_user.email !== req.user.email ||
+          modified_user.device_token !== req.user.device_token ||
+          modified_user.device_uuid !== req.user.device_uuid ||
+          modified_user.username !== req.user.username)
+      ) {
         user_with_token = method(modified_user);
-      else user_with_token = method(req.user);
-
-      res.send(
-        Object.assign({}, response, {
+      }
+      let final_response = response;
+      if (user_with_token)
+        final_response = Object.assign({}, response, {
           user_token: user_with_token.token,
           user_uuid: user_with_token.uuid
-        })
-      );
+        });
+      res.send(final_response);
     };
 
     res.sendError = error => {

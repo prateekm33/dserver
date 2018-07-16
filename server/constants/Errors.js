@@ -40,6 +40,13 @@ const _ERRORS = [
     })
   ],
   [
+    "NOTIFICATION_ERROR",
+    code => ({
+      message: "Error sending notifications",
+      code
+    })
+  ],
+  [
     "UNAUTHORIZED",
     code => ({
       message: "UNAUTHORIZED",

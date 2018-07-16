@@ -60,6 +60,12 @@ exports.updateVendorCustomerLoyaltyRewardCard = (vendor_uuid, where, updates) =>
     where: Object.assign({}, where || {}, { vendor_uuid })
   }).then(card => {
     if (!card) throw createNewError(Errors.CUSTOMER_REWARD_CARD_NOT_FOUND);
+    let update_type;
+    if (card.points < updates.points) {
+      update_type = "earn";
+    } else if (card.num_points_redeemed < updates.num_points_redeemed) {
+      update_type = "redeem";
+    }
     return card.updateAttributes(updates);
   });
 
