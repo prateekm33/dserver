@@ -13,8 +13,12 @@ module.exports = (sequelize, Vendor) => {
       name: { type: Sequelize.STRING, defaultValue: "" },
       short_desc: { type: Sequelize.CHAR({ length: 100 }), defaultValue: "" },
       long_desc: { type: Sequelize.CHAR({ length: 255 }), defaultValue: "" },
+      thumbnail_url: { type: Sequelize.STRING },
       expiration: { type: Sequelize.DATE },
-      discount_amount: { type: Sequelize.INTEGER }
+      discount_amount: { type: Sequelize.DOUBLE },
+      tags: {
+        type: Sequelize.ARRAY(Sequelize.STRING)
+      }
     },
     { underscored: true }
   );

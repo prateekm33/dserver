@@ -5,12 +5,22 @@ const {
   getVendors,
   createVendor,
   updateVendor,
-  deleteVendor
+  deleteVendor,
+  searchVendors
 } = require("../../../db/controllers");
 const { createNewError } = require("../../../utils");
 const Errors = require("../../../constants/Errors");
 const auth = require("../../../middleware/auth");
 const { USER_ROLES } = require("../../../db/schemas/constants");
+
+router.get("/search", (req, res) => {
+  const limit = +req.query.limit || 50;
+  const offset = +req.query.offset || 0;
+  const search = req.query.search || "";
+  searchVendors({ search, limit, offset })
+    .then(response => res.status(200).send(response))
+    .catch(res.sendError);
+});
 
 router.get("/:vendorId?", (req, res) => {
   if (req.params.vendorId)

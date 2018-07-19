@@ -47,5 +47,6 @@ sequelize
 
 module.exports = {
   db: sequelize,
-  ...schemas
+  ...schemas,
+  neo4j: require("./neo4j")
 };

@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const { Deal, db } = require("../");
+const { Deal, db, neo4j } = require("../");
 const sequelize = db;
 const { createNewError } = require("../../utils");
 const Errors = require("../../constants/Errors");
@@ -46,11 +46,59 @@ exports.getVendorDeals = (vendor_uuid, { limit, offset }) => {
 
 exports.createVendorDeal = (vendor_uuid, deal) => {
   delete deal.uuid;
+  let tags = [];
+  if (Array.isArray(deal.tags))
+    tags = deal.tags
+      .map(d => {
+        if (typeof d !== "string") return false;
+        return d.toLowerCase();
+      })
+      .filter(d => !!d);
   return Deal.create(Object.assign({}, deal, { vendor_uuid }), {
-    fields: ["code", "name", "short_desc", "long_desc", "vendor_uuid"]
+    fields: [
+      "code",
+      "name",
+      "short_desc",
+      "long_desc",
+      "expiration",
+      "discount_amount",
+      "vendor_uuid",
+      "thumbnail_url",
+      "tags"
+    ]
+  }).then(new_deal => {
+    const session = neo4j.session();
+    return session
+      .run(
+        `
+        UNWIND {tags} as tag
+        MERGE (t:Tag { title: tag })
+        MERGE (d:Deal { 
+          uuid: {uuid},
+          vendor_uuid: {vendor_uuid}
+        })
+        CREATE (d)-[r:HAS_TAG]->(t)
+      `,
+        {
+          uuid: new_deal.uuid,
+          vendor_uuid,
+          tags
+        }
+      )
+      .then(results => {
+        session.close();
+        return true;
+      })
+      .catch(err => {
+        // TODO....send push notification that tags were not saved
+        session.close();
+        return false;
+      })
+      .then(() => new_deal);
   });
 };
 
+// TODO...add in neo4j query to update tags
 exports.updateVendorDeal = (vendor_uuid, where, updates) => {
   delete updates.uuid;
   return Deal.findOne({
@@ -61,6 +109,7 @@ exports.updateVendorDeal = (vendor_uuid, where, updates) => {
   });
 };
 
+// TODO...add in neo4j query to delete deal from neo4j db
 exports.deleteVendorDeal = (vendor_uuid, where) =>
   Deal.destroy({ where: Object.assign({}, where || {}, { vendor_uuid }) }).then(
     rows => {

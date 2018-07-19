@@ -1,8 +1,17 @@
 // route: /api/deals
 const router = require("express").Router();
-const { getDeals } = require("../../db/controllers");
+const { getDeals, searchDeals } = require("../../db/controllers");
 const { sendUnauthorizedMessage } = require("../../utils");
 const { USER_ROLES } = require("../../db/schemas/constants");
+
+router.get("/search", (req, res) => {
+  const limit = +req.query.limit || 50;
+  const offset = +req.query.offset || 0;
+  const search = req.query.search || "";
+  searchDeals({ search, limit, offset })
+    .then(response => res.status(200).send(response))
+    .catch(res.sendError);
+});
 
 router.get("/", (req, res) => {
   if (

@@ -63,8 +63,16 @@ module.exports = sequelize => {
         }
       },
       address: {
-        type: Sequelize.STRING,
-        defaultValue: ""
+        type: Sequelize.STRING
+      },
+      latitude: {
+        type: Sequelize.DOUBLE
+      },
+      longitude: {
+        type: Sequelize.DOUBLE
+      },
+      cuisines: {
+        type: Sequelize.ARRAY(Sequelize.STRING)
       }
     },
     { underscored: true }

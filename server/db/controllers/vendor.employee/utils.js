@@ -16,6 +16,7 @@ exports.validateVendorEmployee = employee => {
         "first_name",
         "last_name",
         "email",
+        "username",
         "password",
         "role",
         "device_token",
@@ -29,7 +30,7 @@ exports.validateVendorEmployee = employee => {
 
 exports.findOrCreate = employee => {
   return VendorEmployee.findOne({
-    where: { email: employee.email, vendor_uuid: employee.vendor_uuid }
+    where: { username: employee.username, vendor_uuid: employee.vendor_uuid }
   })
     .then(found => {
       if (!!found) {

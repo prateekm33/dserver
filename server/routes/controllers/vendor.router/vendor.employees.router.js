@@ -25,7 +25,6 @@ router.post("/logout", (req, res) => {
 
 router.get("/:vendorId/:userId?", auth.canAccessVendorEmployee, (req, res) => {
   const vendor_uuid = req.user.vendor_uuid;
-  // TODO--- make sure that vendor_uuid is in req.user
   if (req.user.role !== USER_ROLES.SUPERADMIN && !vendor_uuid)
     return res
       .status(400)

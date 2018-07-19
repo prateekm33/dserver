@@ -5,10 +5,13 @@ exports.getLoyaltyRewards = ({ where, limit, offset }) => {
   const bind = { limit, offset };
   let query =
     "select json_build_object('loyalty_reward', lr)\"data\" from (select lr.*, json_build_object('data', v)vendor from loyalty_rewards lr inner join vendors v on v.uuid=lr.vendor_uuid)lr";
-  const count_query = sequelize.query(query, {
-    bind,
-    type: Sequelize.QueryTypes.SELECT
-  });
+  const count_query = sequelize.query(
+    `select count(*) from (${query}) as rewards`,
+    {
+      bind,
+      type: Sequelize.QueryTypes.SELECT
+    }
+  );
   query += " limit $limit offset $offset";
   const select_query = sequelize.query(query, {
     bind,

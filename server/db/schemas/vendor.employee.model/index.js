@@ -17,7 +17,6 @@ module.exports = (sequelize, Vendor) => {
       last_name: { type: Sequelize.STRING, defaultValue: "" },
       email: {
         type: Sequelize.STRING,
-        unique: true,
         validate: {
           isEmail: true
         }

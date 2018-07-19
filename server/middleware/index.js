@@ -9,7 +9,8 @@ const { USER_ROLES } = require("../db/schemas/constants");
 // const notificationsClient = require("../utils/notifications.client");
 
 module.exports = app => {
-  app.use(bodyParser.json({ urlencoded: true }));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(logger.HTTP_LOGGER);
   app.use((req, res, next) => {
     res.sendResponseWithUser = (response, modified_user) => {

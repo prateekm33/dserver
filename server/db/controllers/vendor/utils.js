@@ -13,7 +13,9 @@ exports.validateVendor = vendor => {
         "primary_contact_name",
         "primary_contact_email",
         "primary_contact_phone",
-        "address"
+        "latitude",
+        "longitude",
+        "cuisines"
       ]
     })
   );

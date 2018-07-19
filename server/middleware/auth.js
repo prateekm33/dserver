@@ -7,11 +7,20 @@ const {
   isVendorEmployeeUtility
 } = require("../utils");
 const expressJWT = require("express-jwt");
-const { getCustomer, getVendorEmployee } = require("../db/controllers");
+const {
+  getCustomer,
+  getVendorEmployee,
+  getSuperAdmin
+} = require("../db/controllers");
 const { USER_ROLES } = require("../db/schemas/constants");
 const { TokenBlacklist } = require("../db");
 const Errors = require("../constants/Errors");
-const { getSuperAdmin } = require("../routes/controllers/gotham.router");
+
+exports.isCustomer = (req, res, next) => {
+  if (req.user.role !== USER_ROLES.CUSTOMER)
+    return sendUnauthorizedMessage(res);
+  return next();
+};
 
 exports.isAdmin = (req, res, next) => {
   if (

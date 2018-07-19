@@ -8,6 +8,11 @@ module.exports = app => {
   app.use("/api/employees", require("./controllers/employees.router"));
   app.use("/api/vendors", require("./controllers/vendor.router"));
   app.use(
+    "/api/reviews",
+    auth.validateJWT,
+    require("./controllers/reviews.router")
+  );
+  app.use(
     "/api/deals",
     auth.validateJWT,
     require("./controllers/deals.router")

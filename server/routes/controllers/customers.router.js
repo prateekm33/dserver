@@ -7,11 +7,25 @@ const {
   createCustomer,
   updateCustomer,
   deleteCustomer,
-  generatePasswordResetLinkCustomer
+  generatePasswordResetLinkCustomer,
+  createVisit
 } = require("../../db/controllers");
 const { TokenBlacklist } = require("../../db");
 const Errors = require("../../constants/Errors");
 const { createNewError, saveCustomerSession } = require("../../utils");
+
+router.post(
+  "/visits/:customerId/:vendorId",
+  auth.canAccessVendor,
+  (req, res) => {
+    createVisit({
+      customer_uuid: req.params.customerId,
+      vendor_uuid: req.params.vendorId
+    })
+      .then(visit => res.status(200).send({ visit }))
+      .catch(res.sendError);
+  }
+);
 
 router.post("/forgot_password", (req, res) => {
   const customer = req.body.customer;

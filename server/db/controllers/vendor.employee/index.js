@@ -65,9 +65,6 @@ exports.updateVendorEmployee = (uuid, updates) => {
         });
     })
     .then(employee => {
-      console.log(
-        "------TODO...need to check if this actually works...., might have to call employee.get first"
-      );
       delete updates.uuid;
       for (let attr in updates) {
         employee[attr] = updates[attr];

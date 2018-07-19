@@ -33,6 +33,16 @@ module.exports = sequelize => {
     Customer
   );
   const TokenBlacklist = require("./token.blacklist.model")(sequelize);
+  const CustomerVisits = require("./customer_visits.model")(
+    sequelize,
+    Customer,
+    Vendor
+  );
+  const VendorReviews = require("./vendor.review.model")(
+    sequelize,
+    Customer,
+    Vendor
+  );
   return {
     Customer,
     VendorEmployee,
@@ -42,6 +52,8 @@ module.exports = sequelize => {
     Vendor,
     PasswordRecoveryVendor,
     PasswordRecoveryCustomer,
-    TokenBlacklist
+    TokenBlacklist,
+    CustomerVisits,
+    VendorReviews
   };
 };

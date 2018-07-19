@@ -10,7 +10,10 @@ const controllers = {
   ...require("./vendor.deals"),
   ...require("./deals"),
   ...require("./rewards"),
-  ...require("./password.recovery")
+  ...require("./password.recovery"),
+  ...require("./superadmin"),
+  ...require("./customer.visits"),
+  ...require("./reviews")
 };
 
 const wrappedControllers = {};
