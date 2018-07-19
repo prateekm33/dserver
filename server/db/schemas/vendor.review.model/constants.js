@@ -1,1 +1,1 @@
-exports.REVIEW_METRICS = [];
+exports.VENDOR_REVIEW_METRICS = [];

@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const REVIEW_METRICS = require("./constants").REVIEW_METRICS;
+const VENDOR_REVIEW_METRICS = require("./constants").VENDOR_REVIEW_METRICS;
 module.exports = (sequelize, Customer, Vendor) => {
   const schema = {
     uuid: {
@@ -16,7 +16,7 @@ module.exports = (sequelize, Customer, Vendor) => {
     }
   };
 
-  REVIEW_METRICS.forEach(metric => {
+  VENDOR_REVIEW_METRICS.forEach(metric => {
     schema[metric] = {
       type: Sequelize.INTEGER,
       defaultValue: 0

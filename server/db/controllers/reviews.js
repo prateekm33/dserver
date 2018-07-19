@@ -1,5 +1,5 @@
 const { VendorReviews } = require("..");
-const REVIEW_METRICS = require("../schemas/vendor.review.model/constants");
+const VENDOR_REVIEW_METRICS = require("../schemas/vendor.review.model/constants");
 
 exports.createVendorReview = ({ customer_uuid, vendor_uuid, review }) => {
   return VendorReviews.create(
@@ -8,7 +8,7 @@ exports.createVendorReview = ({ customer_uuid, vendor_uuid, review }) => {
       vendor_uuid,
       ...review
     },
-    { fields: REVIEW_METRICS } // TODO....
+    { fields: VENDOR_REVIEW_METRICS } // TODO....
   );
 };
 
@@ -19,6 +19,6 @@ exports.updateVendorReview = ({ customer_uuid, vendor_uuid, updates }) => {
       vendor_uuid
     }
   }).then(review => {
-    return review.updateAttributes(updates, { fields: REVIEW_METRICS });
+    return review.updateAttributes(updates, { fields: VENDOR_REVIEW_METRICS });
   });
 };
