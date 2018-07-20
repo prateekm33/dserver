@@ -22,6 +22,11 @@ module.exports = app => {
     auth.validateJWT,
     require("./controllers/rewards.router")
   );
+  app.use(
+    "/api/search",
+    auth.validateJWT,
+    require("./controllers/search.router")
+  );
   app.use("/gotham/batcave", require("./controllers/gotham.router"));
 
   app.use("*", (req, res) => {

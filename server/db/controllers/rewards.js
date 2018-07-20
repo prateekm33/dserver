@@ -27,3 +27,35 @@ exports.getLoyaltyRewards = ({ where, limit, offset }) => {
     };
   });
 };
+
+exports.searchDeals = ({ search, limit, offset }) => {
+  const session = neo4j.session();
+  return session
+    .run(
+      `
+      MATCH 
+        (r:Reward)-[re1:HAS_TAG]->(t:Tag), 
+        (r)-[:FOR_VENDOR]->(v:Vendor)
+      WHERE 
+        t.title STARTS WITH {search} OR
+        v.name STARTS WITH {search}
+      RETURN v
+      `,
+      { search: (search || "").toLowerCase(), limit, offset }
+    )
+    .then(results => {
+      session.close();
+      console.log("-----> results :", results);
+      return results.records.map(record => record._fields[0].properties);
+    })
+    .catch(error => {
+      session.close();
+      throw error;
+    })
+    .then(deals => {
+      const uuids = deals.map(deal => deal.uuid);
+      return Deal.findAll({
+        where: { uuid: { [Op.in]: uuids } }
+      }).then(deals => ({ deals }));
+    });
+};

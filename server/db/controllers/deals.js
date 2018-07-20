@@ -34,9 +34,14 @@ exports.searchDeals = ({ search, limit, offset }) => {
   const session = neo4j.session();
   return session
     .run(
-      `MATCH (t:Tag)<-[r:HAS_TAG]-(d:Deal) 
-      WHERE t.title STARTS WITH {search} 
-      return d skip {offset} limit {limit}
+      `
+      MATCH 
+        (d:Deal)-[r:HAS_TAG]->(t:Tag),
+        (d)-[:FOR_VENDOR]->(v:Vendor)
+      WHERE 
+        t.title STARTS WITH {search} OR
+        v.name STARTS WITH {search}
+      RETURN d;
       `,
       { search: (search || "").toLowerCase(), limit, offset }
     )

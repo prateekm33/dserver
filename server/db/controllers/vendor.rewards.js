@@ -45,9 +45,57 @@ exports.getVendorRewards = (vendor_uuid, { limit, offset }) => {
 };
 // LoyaltyReward.findAll({ where });
 
-exports.createVendorReward = reward => {
-  return LoyaltyReward.create(reward, {
-    fields: ["code", "name", "short_desc", "long_desc", "vendor_uuid"]
+exports.createVendorReward = (vendor_uuid, reward) => {
+  delete reward.uuid;
+  let tags = [];
+  if (Array.isArray(reward.tags))
+    tags = reward.tags
+      .map(r => {
+        if (typeof r !== "string") return false;
+        return r.toLowerCase();
+      })
+      .filter(r => !!r);
+  return LoyaltyReward.create(Object.assign({}, reward, { vendor_uuid }), {
+    fields: [
+      "code",
+      "name",
+      "short_desc",
+      "long_desc",
+      "vendor_uuid",
+      "points_reward_ratio",
+      "tags"
+    ]
+  }).then(new_reward => {
+    const session = neo4j.session();
+    return session
+      .run(
+        `
+        UNWIND {tags} as tag
+        MERGE (t:Tag { title: tag })
+        MERGE (r:Reward { 
+          uuid: {uuid},
+          vendor_uuid: {vendor_uuid}
+        })
+        MERGE (v:Vendor { uuid: {vendor_uuid} })
+        CREATE (r)-[r1:FOR_VENDOR]->(v)
+        CREATE (r)-[r2:HAS_TAG]->(t)
+      `,
+        {
+          uuid: new_reward.uuid,
+          vendor_uuid,
+          tags
+        }
+      )
+      .then(results => {
+        session.close();
+        return true;
+      })
+      .catch(err => {
+        // TODO....send push notification that tags were not saved
+        session.close();
+        return false;
+      })
+      .then(() => new_reward);
   });
 };
 

@@ -77,7 +77,9 @@ exports.createVendorDeal = (vendor_uuid, deal) => {
           uuid: {uuid},
           vendor_uuid: {vendor_uuid}
         })
-        CREATE (d)-[r:HAS_TAG]->(t)
+        MERGE (v:Vendor { uuid: {vendor_uuid} })
+        CREATE (d)-[r1:FOR_VENDOR]->(v)
+        CREATE (d)-[r2:HAS_TAG]->(t)
       `,
         {
           uuid: new_deal.uuid,

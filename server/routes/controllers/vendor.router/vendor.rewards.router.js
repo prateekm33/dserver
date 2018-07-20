@@ -62,8 +62,7 @@ router.post("/:vendorId", auth.canAccessVendor, auth.isAdmin, (req, res) => {
       );
   }
   const loyalty_reward = req.body.loyalty_reward;
-  loyalty_reward.vendor_uuid = req.params.vendorId;
-  createVendorReward(loyalty_reward, req.params.vendorId)
+  createVendorReward(req.params.vendorId, loyalty_reward)
     .then(loyalty_reward =>
       res.status(200).sendResponseWithUser({ loyalty_reward })
     )
