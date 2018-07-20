@@ -77,7 +77,7 @@ exports.canAccessCustomer = (req, res, next) => {
 exports.canAccessVendorEmployee = (req, res, next) => {
   if (
     req.user.role === USER_ROLES.VENDOR_EMPLOYEE &&
-    req.user.uuid === req.params.userId
+    req.user.uuid === req.params.employeeId
   )
     next();
   else exports.isAdmin(req, res, next);

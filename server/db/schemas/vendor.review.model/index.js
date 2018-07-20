@@ -22,7 +22,7 @@ module.exports = (sequelize, Customer, Vendor) => {
       defaultValue: 0
     };
   });
-  const VendorReview = sequelize.define("vendor_password_recovery", schema, {
+  const VendorReview = sequelize.define("vendor_review", schema, {
     underscored: true
   });
 
